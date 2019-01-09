@@ -1,0 +1,40 @@
+#Information Only, probably not something which will be made public
+
+Static
+Primary Dashboard (System Health & high level overview)
+AD User Overview
+AD Computer Overview
+AD Health Overview
+AD DNS/DHCP Stats/Health
+O365 Overview
+O365 Security & Compliance Center
+AzureAD Overview
+Crowdstrike API data
+Cylance API data
+Paloalto Firewall API data
+AD/Windows/O365 Security Overview/BPA
+VMware Guest Overview
+VMware Host Overview
+vCenter Overview
+Okta Dashboard
+Threat Intelligence Dashboard (OTX, Talos, etc)
+
+
+Dynamic
+Individual Computer Check
+Individual Computer Monitor (perf data)
+Individual User Check
+
+
+Others to consider
+Generic SNMP Viewer
+Cisco SNMP Viewer
+Cisco ASA dashboard
+Cisco switch/router support
+Riverbed API
+SilverPeak API
+Darktrace API
+SharePoint
+Hyper-V
+SAP
+SQL Cluster/Server/DB
