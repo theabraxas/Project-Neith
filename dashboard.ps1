@@ -1,8 +1,12 @@
 #Install-Module UniversalDashboard
 #Install SQL Server Express (Default Instance - MSSQLSERVER) (Mixed mode? Win Auth?)
 
+#Each var ending with "Page" represents a page which should have a separate URI associated with it. Dynamic ones specify the URL 
+#parameter, static ones (like Home) are given a URL matching the title.
+
 $HomePage = New-UDPage -Name "Home" -Icon home -Content {
     New-UDLayout -Columns 3 -Content {
+    	#AD User Unlock
         New-UDInput -Title "Unlock User" -Endpoint {
             param($UserName)
             Unlock-ADAccount $UserName
@@ -15,42 +19,49 @@ $HomePage = New-UDPage -Name "Home" -Icon home -Content {
                 New-UDInputAction -Toast "$UserName is still locked"
             }
         }
+	#Enter Computer Name to view a dynamic page with core computer information
         New-UDInput -Title "Enter Computer Name: " -Endpoint {
             param($ComputerName)
             New-UDInputAction -RedirectUrl "/computer/main/$ComputerName"
         }
+	#Enter a user name to view a dynamic page with core user information
         New-UDInput -Title "Enter User Name: " -Endpoint {
             param($UserName)
             New-UDInputAction -RedirectUrl "/user/$UserName"
         }
+	#List of AD Computers
         New-UDGrid -Title "AD Computers" -Headers @("Computer Name") -Properties @("Name") -Endpoint {
             get-adcomputer -filter * | select-object Name | Out-UDGridData
         }
+	#List of users by 'Name' ** should switch this to SAMAccountName
         New-UDGrid -Title "AD Users" -Headers @("User Name") -Properties @("Name") -Endpoint {
             Get-ADUser -filter * | Select-Object Name | Out-UDGridData
         }
+	#Monitor of CPU status where UniversalDashboard is running.
         New-UDMonitor -Title "Webserver CPU Status" -Type Line -DataPointHistory 50 -RefreshInterval 2 -Endpoint {
             Get-WmiObject win32_processor | select-object -ExpandProperty LoadPercentage | Out-UDMonitorData
         }
     }
-    }
+}
+
 $SecurityPage = New-UDPage -Name "Security Dashboard" -Icon _lock -Content {
-	#Sample Cylance Pull
+    #Represents a security overview page, currently empty.
+    #Sample Cylance Pull
     #$CylanceThreats = Invoke-RestMethod -Method GET -URI https://protect.cylance.com/Reports/ThreatDataReportV1/threats/APIKEYGOESHERE | ConvertFrom-CSV
     #Sorted CSV Example by Date:  $CylanceThreats | Sort-Object {[datetime]$_.'Created'} -Descending
     
     New-UDLayout -Columns 3 -Content {
         New-UDCard -Title "Security" -Text "This is a security page"
-        }
     }
+}
 
-    $UserInfo = New-UDPage -Url "/user/:UserName" -Endpoint {
+$UserInfo = New-UDPage -Url "/user/:UserName" -Endpoint {
+    #Dynamic page which provides an overview of the users attributes.
     param($UserName)
-    $Name = $UserName
     $UserName = (Get-ADUser $UserName -Properties *)
     New-UDRow -Columns {
         New-UDColumn -Size 4 {
-            New-UDCard -Title "$Name Information" -Text "$Name Information"
+            New-UDCard -Title "$UserName.Name Information" -Text "$UserName.SAMAccountName Information"
             }
         New-UDColumn -Size 8 {
                 New-UDTable -Title "Detailed User Information" -Headers @(" "," ") -Endpoint {
@@ -78,6 +89,8 @@ $SecurityPage = New-UDPage -Name "Security Dashboard" -Icon _lock -Content {
 }
 
 $UserOverviewPage = New-UDPage -Icon address_book -Name "User Overview" -Content {
+    #Overview of bulk user data in AD. Should pull from DB instead of live queries to AD. These variables should also 
+    #be prepopulated with a custom function, not parsed in the columns
     New-UDRow -Columns {
         New-UDColumn -Size 4 {
             New-UDCard -Title "UserOverview" -Text "This is a page to view user information"
@@ -100,6 +113,7 @@ $UserOverviewPage = New-UDPage -Icon address_book -Name "User Overview" -Content
             }
         }
         New-UDColumn -Size 4 -Endpoint {
+	#It would be really great to add some default color scheme to this chart...
             New-UDChart -Type Doughnut -Endpoint {
                 $ADUsers = Get-ADUser -filter * -properties Enabled, LockedOut, EmailAddress
                 $UserCount = $ADUsers.Count
