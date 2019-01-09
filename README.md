@@ -22,3 +22,14 @@ From a PowerShell Prompt:
 `cd UltimateDashboard`
 4) Launch Dashboard
 `./Dashboard.ps1`
+
+# Architecture and Function
+This project is based on a web server which leverages both a database and live calls to various datasources to produce visualizations, tables, health checks, and interactive capabilities. 
+
+The database is populated both by the activites performed in the web interface as well as through a series of data collection scripts which can be set as cron jobs or schedule tasks. 
+
+These collecters are located included in the scheduled_jobs folder, a separate README will be provided in that folder to describe configurations and recommended ways to implement.
+
+A SQL Express server is used in the documentation here although a full SQL server can be leveraged if available. The server will store various data depending on what is enabled in the dashboard. These will allow for longer-term analysis of the environment's health.
+
+The webserver is, as mentioned previously, utilizing PowerShell UniversalDashboard and requires no additional services or technologies to be running in order to run. It can only run on Windows systems and binds to a port specified in dashboard.ps1
