@@ -7,9 +7,13 @@ Universal Dashboard is a module made by Adam Driscoll which allows for the easy 
 
 # Prerequisites
 * Required
+
 PowerShell 5.1 or greater or PowerShell Core 6.1 or greater
+
 .NET Framework 4.7.2
+
 * Optional
+
 Git
 
 # Starting the Dashboard
