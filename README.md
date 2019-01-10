@@ -10,15 +10,12 @@ More information can be found below, I highly recommend exploring and supporting
 https://universaldashboard.io/ 
 
 # Prerequisites
-* Required
+Required
+* PowerShell 5.1 or greater or PowerShell Core 6.1 or greater
+* .NET Framework 4.7.2
 
-PowerShell 5.1 or greater or PowerShell Core 6.1 or greater
-
-.NET Framework 4.7.2
-
-* Optional
-
-Git
+Optional
+* Git
 
 # Starting the Dashboard
 From a PowerShell Prompt:
