@@ -3,7 +3,11 @@ Dashboard project which is intended to provide an operations and security dashbo
 
 # Technologies
 * Universal Dashboard
-Universal Dashboard is a module made by Adam Driscoll which allows for the easy creation of webpages using PowerShell. The technology defines simple powershell functions which represent ASP.NET Core, .NET Core, and React objects. More information can be found here, I highly recommend exploring and supporting this awesome technology! https://universaldashboard.io/ 
+Universal Dashboard is a module made by Adam Driscoll which allows for the easy creation of webpages using PowerShell. The technology defines simple powershell functions which represent ASP.NET Core, .NET Core, and React objects. 
+
+More information can be found below, I highly recommend exploring and supporting this awesome technology! 
+
+https://universaldashboard.io/ 
 
 # Prerequisites
 * Required
