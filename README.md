@@ -12,7 +12,7 @@ https://universaldashboard.io/
 # Prerequisites
 Required
 * PowerShell 5.1 or greater or PowerShell Core 6.1 or greater
-* .NET Framework 4.7.2
+* .NET Framework 4.7.2 (for Powershell -> https://dotnet.microsoft.com/download/thank-you/net472) 
 
 Optional
 * Git
