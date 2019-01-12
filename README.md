@@ -16,6 +16,8 @@ Required
 
 Optional
 * Git
+* PowerCLI - `Install-Module -Name VMware.PowerCLI`
+* SQL PowerShell Cmdlets - `Import-Module -Name SQLPS`
 
 # Starting the Dashboard
 From a PowerShell Prompt:
