@@ -65,4 +65,22 @@ Is AV Installed? Is it Running?
   $ServiceName = "something" # based on get-service listing of AV service
  `Get-Service -ComputerName $ComputerName | Where-object -Property "Name" -Like "$ServiceName" | Select-Object -ExpandProperty Name`
  
+List of users in administrative groups
+ $group = get-wmiobject win32_groupuser -computer $ComputerName
+ $group | Where-object {$_.groupcomponent -like '*"Administrators"'} | select-object -Property PartComponent
+List of local users
+ `(Get-WmiObject -Class Win32_UserAccount -Filter "LocalAccount='True'")`
+List of installed software
+Processor Count
+ `(Get-WmiObject -Class Win32_Processor).Count`
+Processor Core Count
+ `(Get-WmiObject -Class Win32_Processor -Property NumberOfCores | Select-Object -ExpandProperty NumberOfCores)` #Per Processor
+Processor Utilizations
+Memory Slot Count 
+Memory Slot Size
+Memory Total and Utilization
+ `(Get-WmiObject -Class Win32_PhysicalMemory).Count #Slots in use
+ #Properties of note
+ ##Manufacturer,PositionInRow,PartNumber,Speed,Tag,DeviceLocator,Capacity
+ 
  
