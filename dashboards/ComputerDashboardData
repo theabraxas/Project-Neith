@@ -3,20 +3,66 @@
 ###STANDARD COMPUTER###
 #AD Capable Data
 Computer Name
+ `$_.Name`
 Created Object Date
+ `$_.whenCreated`
+ `$_.Created`
 Enabled/Disabled
+ `$_.Enabled`
 Last Logged On User
+ *Need to create custom schema attribute
 Live Polling Possible?
-# of drives
+ `Get-WMIObject -ComputerName $comp -property $any` or get service or any of a number of ways
+# of drives #requires live polling
+ `$DiskInfo = Get-WmiObject -Class Win32_LogicalDisk -ComputerName $ComputerName`
+ `$Comps | ForEach-Object {echo $_.DeviceID}` #Drive Letters
+ `$Comps | ForEach-Object {echo $_.VolumeName}` #Drive Names
+ `$Comps | ForEach-Object {echo $_.Size}` #Total Drive Size
+ `$Comps | ForEach-Object {echo $_.FreeSpace}` #Total Drive Free Space
 Storage percents/space per drive
+ *Math on the above data
 Operating System Version
+ `Get-ADComputer $ComputerName -Properties OperatingSystem` && `Get-ADComputer $Computername -Properties OperatingSystemVersion`
 Last Patch Date
+ `get-hotfix -computername $ComputerName  | Sort-Object -Descending -Property InstalledOn -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty InstalledOn`
 Disk Encrypted?
+ `Manage-BDE -status -ComputerName $ComputerName`
 LAPS Password
+ `Get-ADComputer $ComputerName -Properties ms-MCS-AdmPwd | Select -ExpandProperty ms-MCS-AdmPwd` #ms-MCS-AdmPwd is a custom field; this may need to be tweaked but is the recommendation in the documentation
 LAPS installed?
+ #Same as above with a True/False on the value's property
 OU
+ `get-adcomputer $ComputerName -properties * | Select-Object -Property DistinguishedName -ExpandProperty DistinguishedName`
+ `get-adcomputer $ComputerName -properties * | Select-Object -Property CN -ExpandProperty CN` #Different format
 Last logon date/timestamp
+ `get-adcomputer $ComputerName -properties * | Select-Object -Property LastLogon -ExpandProperty LastLogon` #This is an int
+ `get-adcomputer $ComputerName -properties * | Select-Object -Property LastLogonDate -ExpandProperty LastLogonDate` #This is a date
+ `get-adcomputer $ComputerName -properties * | Select-Object -Property LastLogonTimestamp -ExpandProperty LastLogonTimestamp` #This is an int
+Group Memberships
+ `Get-ADComputer $ComputerName -properties * | Select-Object -Property MemberOf -ExpandProperty MemberOf` #List of groups by DN
+ `$CompGroupCount = (Get-ADComputer $ComputerName -properties * | Select-Object -Property MemberOf -ExpandProperty MemberOf).Count
+Last Known IPv4 Address
+ `Get-ADComputer $Computername -properties * | Select-Object -Property IPv4Address -ExpandProperty IPv4Address`
+Object DNS Host Name
+ `Get-ADComputer $Computername -properties * | Select-Object -Property DNSHostName -ExpandProperty DNSHostName` 
+BadLogonCount #Shouldn't Happen?
+ `$_.BadLogonCount`
+Failed Logon Attempts #Shouldn't Happen?
+ `$_.BadPwdCount`
+Description 
+ `$_.Description`
+KerberosEncryptionTypes #DES SHOULD NOT EXIST! DEPRECATED & SECURITY CONCERN
+ `$_.KerberosEncryptionTypes` #Returns array of types
+ 
 
 
 #Other Possible Data
-Is AV Installed?
+Is AV Installed? Is it Running?
+ #Numerous ways to approach this. Could have a configurable path setting for the AV folder; shown below
+ `$AVPath = "C:\Program Files\GenericAVProvider\AV.exe"`
+ `Test-Path \\$ComputerName\$AVPath` #Can also use PSSessions to do this
+ #Another approach is to test if the service name is running, based on that service being listable
+  $ServiceName = "something" # based on get-service listing of AV service
+ `Get-Service -ComputerName $ComputerName | Where-object -Property "Name" -Like "$ServiceName" | Select-Object -ExpandProperty Name`
+ 
+ 
