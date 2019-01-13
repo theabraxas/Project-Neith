@@ -1,0 +1,22 @@
+#This doc will outline the computer data we want to store and view in the dashboard.
+
+###STANDARD COMPUTER###
+#AD Capable Data
+Computer Name
+Created Object Date
+Enabled/Disabled
+Last Logged On User
+Live Polling Possible?
+# of drives
+Storage percents/space per drive
+Operating System Version
+Last Patch Date
+Disk Encrypted?
+LAPS Password
+LAPS installed?
+OU
+Last logon date/timestamp
+
+
+#Other Possible Data
+Is AV Installed?
