@@ -1,4 +1,18 @@
 #This doc will outline the computer data we want to store and view in the dashboard.
+##Add Check for UAC being enabled
+###HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System
+###Value: EnableLUA
+###Type: REG_DWORD
+###Data: 0 = Disable UAC. 1 = Enable UAC. (default)
+
+##Disable Auto Admin Logon
+###HKLM\Software\Microsoft\Windows NT\CurrentVersion\Winlogon
+###Value: Autoadminlogin
+###Type: REG_SZ
+###Data: 0 = Auto Admin Login is not enabled (default)
+
+##Check if SMBv1 Is Enabled on Remote Host
+###Invoke-Command -ComputerName $ComputerName -ScriptBlock { Get-SmbServerConfiguration | Select-Object EnableSMB1Protocol -ExpandProperty EnableSMB1Protocol}
 
 ###STANDARD COMPUTER###
 #AD Capable Data
