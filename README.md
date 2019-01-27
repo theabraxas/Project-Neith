@@ -13,6 +13,7 @@ https://universaldashboard.io/
 Required
 * PowerShell 5.1 or greater or PowerShell Core 6.1 or greater
 * .NET Framework 4.7.2 (for Powershell -> https://dotnet.microsoft.com/download/thank-you/net472) 
+* SQL Server Express 2017
 
 Optional
 * Git
@@ -40,3 +41,9 @@ These collecters are located included in the scheduled_jobs folder, a separate R
 A SQL Express server is used in the documentation here although a full SQL server can be leveraged if available. The server will store various data depending on what is enabled in the dashboard. These will allow for longer-term analysis of the environment's health.
 
 The webserver is, as mentioned previously, utilizing PowerShell UniversalDashboard and requires no additional services or technologies to be running in order to run. It can only run on Windows systems and binds to a port specified in dashboard.ps1
+
+# Setting Up SQL Server Express 2017
+* Download from https://www.microsoft.com/en-us/sql-server/sql-server-editions-express
+* Select Default Installation Options
+* Use Windows authentication
+* It is recommended to also install SQL Server Management Studio as well: https://go.microsoft.com/fwlink/?linkid=2043154
