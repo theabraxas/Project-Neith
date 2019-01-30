@@ -1,50 +1,4 @@
-#Install-Module UniversalDashboard
-#Install SQL Server Express (Default Instance - MSSQLSERVER) (Mixed mode? Win Auth?)
-
-#Each var ending with "Page" represents a page which should have a separate URI associated with it. Dynamic ones specify the URL 
-#parameter, static ones (like Home) are given a URL matching the title.
-
-$HomePage = New-UDPage -Name "Home" -Icon home -Content {
-    New-UDLayout -Columns 3 -Content {
-    	#AD User Unlock
-        New-UDInput -Title "Unlock User" -Endpoint {
-            param($UserName)
-            Unlock-ADAccount $UserName
-            Sleep -Seconds 1
-            $Res = Get-ADUser $Username -Properties LockedOut | Select-Object LockedOut
-            If ($Res.LockedOut -eq $false) {
-                New-UDInputAction -Toast "$UserName has been unlocked"
-            }
-            Else {
-                New-UDInputAction -Toast "$UserName is still locked"
-            }
-        }
-	#Enter Computer Name to view a dynamic page with core computer information
-        New-UDInput -Title "Enter Computer Name: " -Endpoint {
-            param($ComputerName)
-            New-UDInputAction -RedirectUrl "/computer/main/$ComputerName"
-        }
-	#Enter a user name to view a dynamic page with core user information
-        New-UDInput -Title "Enter User Name: " -Endpoint {
-            param($UserName)
-            New-UDInputAction -RedirectUrl "/user/$UserName"
-        }
-	#List of AD Computers
-        New-UDGrid -Title "AD Computers" -Headers @("Computer Name") -Properties @("Name") -Endpoint {
-            get-adcomputer -filter * | select-object Name | Out-UDGridData
-        }
-	#List of users by 'Name' ** should switch this to SAMAccountName
-        New-UDGrid -Title "AD Users" -Headers @("User Name") -Properties @("Name") -Endpoint {
-            Get-ADUser -filter * | Select-Object Name | Out-UDGridData
-        }
-	#Monitor of CPU status where UniversalDashboard is running.
-        New-UDMonitor -Title "Webserver CPU Status" -Type Line -DataPointHistory 50 -RefreshInterval 2 -Endpoint {
-            Get-WmiObject win32_processor | select-object -ExpandProperty LoadPercentage | Out-UDMonitorData
-        }
-    }
-}
-
-$SecurityPage = New-UDPage -Name "Security Dashboard" -Icon _lock -Content {
+﻿$SecurityPage = New-UDPage -Name "Security Dashboard" -Icon _lock -Content {
     #Represents a security overview page, currently empty.
     #Sample Cylance Pull
     #$CylanceThreats = Invoke-RestMethod -Method GET -URI https://protect.cylance.com/Reports/ThreatDataReportV1/threats/APIKEYGOESHERE | ConvertFrom-CSV
@@ -177,7 +131,7 @@ $ComputerLivePage = New-UDPage -Url "/computer/live/:ComputerName" -Endpoint {
             Get-WmiObject -ComputerName $ComputerName win32_processor | select-object -ExpandProperty LoadPercentage | Out-UDMonitorData
         }
         New-UDMonitor -Title "$ComputerName Memory %" -Type Line -DataPointHistory 100 -RefreshInterval 2 -Endpoint {
-            Get-WmiObject -ComputerName $ComputerName -Class win32_operatingsystem | Select-Object @{Name = "MemoryUsage"; Expression = { “{0:N2}” -f ((($_.TotalVisibleMemorySize - $_.FreePhysicalMemory)*100)/ $_.TotalVisibleMemorySize) }} | select-object -ExpandProperty "MemoryUsage" | Out-UDMonitorData
+            Get-WmiObject -ComputerName $ComputerName -Class win32_operatingsystem | Select-Object @{Name = "MemoryUsage"; Expression = { â€œ{0:N2}â€ -f ((($_.TotalVisibleMemorySize - $_.FreePhysicalMemory)*100)/ $_.TotalVisibleMemorySize) }} | select-object -ExpandProperty "MemoryUsage" | Out-UDMonitorData
         }      
         New-UdGrid -Title "Services" -Headers @("Name", "Status") -Properties @("DisplayName", "Status") -AutoRefresh -RefreshInterval 60 -Endpoint { 
             Get-Service -ComputerName $ComputerName |select-object DisplayName,Status | Out-UDGridData
@@ -187,7 +141,3 @@ $ComputerLivePage = New-UDPage -Url "/computer/live/:ComputerName" -Endpoint {
         }
     }
 }
-
-$MyDashboard = New-UDDashboard -Pages @($HomePage, $ComputerPage, $ComputerLivePage, $SecurityPage, $UserOverviewPage, $UserInfo) #Make list of pages to dynamically load here
-
-Start-UDDashboard -Port 1000 -Dashboard $MyDashboard
