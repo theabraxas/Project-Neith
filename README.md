@@ -24,12 +24,12 @@ Optional
 From a PowerShell Prompt:
 1) Install Universal Dashboard
 `Install-Module -Name UniversalDashboard -AcceptLicense -Confirm`
-2) Clone our code
+2) Clone the code
 `git clone https://github.com/theabraxas/UltimateDashboard`
-3) Navigate to the dashboards
-`cd UltimateDashboard`
+3) Prepare the database
+Run the `./dbconfig.ps1` script
 4) Launch Dashboard
-`./Dashboard.ps1`
+`./main.ps1`
 
 # Architecture and Function
 This project is based on a web server which leverages both a database and live calls to various datasources to produce visualizations, tables, health checks, and interactive capabilities. 
