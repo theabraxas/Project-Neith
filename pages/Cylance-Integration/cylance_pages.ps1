@@ -1,5 +1,5 @@
 ﻿$CylanceBaseURL = "https://protect.cylance.com/Reports/ThreatDataReportV1/"
-$APIToken = "ENTERAPIKEY" #replace with query
+$APIToken = "75630645C8074CF6B9B9D95FFB425744" #replace with query
 $APIEndpoints = "threats,devices,events,indicators,cleared,policies,externaldevices,memoryprotection"
 
 #Initial Objects
@@ -21,7 +21,7 @@ $ThreatAction = $ThreatData | Group-Object -Property "File Status"
 #Other Stats
 $CylanceComputerCount = $DeviceData.Count
 
-$CylancePage = New-UDPage -Name "Cylance" -Content {
+$CylancePage = New-UDPage -Name "Cylance" -Icon unlock -Content {
     New-UDLayout -Columns 2 -Content {
         New-UDChart -Title "Devices by Zone" -Type HorizontalBar -Endpoint {
             $DevicesByZone | Out-UDChartData -DataProperty Count -LabelProperty Name -BackgroundColor @("#75cac3","#2a6171","#f3d516","#4b989e","#86df4a","#b816f3","#f31651","#4e4b9e") -BorderColor 'black' -HoverBackgroundColor '#FF9F0D'

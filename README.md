@@ -39,4 +39,4 @@ These collecters are located included in the scheduled_jobs folder, a separate R
 
 A SQL Express server is used in the documentation here although a full SQL server can be leveraged if available. The server will store various data depending on what is enabled in the dashboard. These will allow for longer-term analysis of the environment's health.
 
-The webserver is, as mentioned previously, utilizing PowerShell UniversalDashboard and requires no additional services or technologies to be running in order to run. It can only run on Windows systems and binds to a port specified in dashboard.ps1
+The webserver is, as mentioned previously, utilizing PowerShell UniversalDashboard and requires no additional services or technologies to be running in order to run. It can only run on Windows systems and binds to a port specified in dashboard.ps1.

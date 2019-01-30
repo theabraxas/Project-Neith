@@ -20,8 +20,6 @@ Get-ChildItem -Path C:\Users\stewart.olson\ultimatedashboard\pages -Filter *.ps1
     . $_.FullName
 }
 
-
-
 $ActiveIntegrations = Invoke-Sqlcmd -Query "Select template_name,variablename from template_configs where active = 'yes'"
 
 $pages = @()
@@ -39,7 +37,7 @@ Foreach ($int in $ActiveIntegrations) {
     }
 }
 
-$Pages += $adpage
+$pages += $ADPage
 $pages += $CylancePage
 $Pages += $TemplatePage
 
