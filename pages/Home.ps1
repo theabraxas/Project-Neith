@@ -1,11 +1,15 @@
-﻿$HomePage = New-UDPage -Name "Home" -Icon home -Content {
+$RecordsPerTable = @(Invoke-Sqlcmd -Query "select t.name TableName, i.rows Records
+            from sysobjects t, sysindexes i
+            where t.xtype = 'U' and i.id = t.id and i.indid in (0,1)
+            order by TableName;") 
+
+$HomePage = New-UDPage -Name "Home" -Icon home -Content {        
     New-UDLayout -Columns 3 -Content {
-	    #DB Stats
+	    #DB Stats ($recordspertable
         $RecordsPerTable = @(Invoke-Sqlcmd -Query "select t.name TableName, i.rows Records
             from sysobjects t, sysindexes i
             where t.xtype = 'U' and i.id = t.id and i.indid in (0,1)
-            order by TableName;")
-        
+            order by TableName;")    
         New-UDTable -Title "Table Statistics" -Headers @("TableName", "Records") -Endpoint {
             $RecordsPerTable.GetEnumerator() | Out-UDTableData -Property @("TableName", "Records")
     }
