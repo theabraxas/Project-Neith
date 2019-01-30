@@ -41,6 +41,6 @@ $pages += $ADPage
 $pages += $CylancePage
 $Pages += $TemplatePage
 
-$MyDashboard = New-UDDashboard -Pages $pages
+$MyDashboard = New-UDDashboard -Pages $pages -Title "I need a name"
 
 Start-UDDashboard -Port 1000 -Dashboard $MyDashboard
