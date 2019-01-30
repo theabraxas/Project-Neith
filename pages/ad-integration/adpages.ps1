@@ -1,4 +1,4 @@
-﻿$UserInfoPage = New-UDPage -Url "/user/:UserName" -Endpoint {
+$UserInfoPage = New-UDPage -Url "/user/:UserName" -Endpoint {
     #Dynamic page which provides an overview of the users attributes.
     param($UserName)
     $UserName = (Get-ADUser $UserName -Properties *)
@@ -31,20 +31,21 @@
     }
 }
 
+$ADUsers = Invoke-Sqlcmd -Query "select * from ad_users"
+$UserCount = $ADUsers.Count
+$EnabledUserCount = ($ADUsers | Where-Object -Property Enabled -eq -Value $True).Count
+$DisabledUserCount = $UserCount - $EnabledUserCount
+$LockedOutUsers = @($ADUsers | Where-Object -Property LockedOut -eq -Value $True)
+$LockedOutUserCount = $LockedOutUsers.Count
+$UsersWithEmail = ($ADUsers | Where-Object -Property EmailAddress -NotLike "").Count
+
 $UserOverviewPage = New-UDPage -Icon address_book -Name "User Overview" -Content {
-    #Overview of bulk user data in AD. Should pull from DB instead of live queries to AD. These variables should also 
-    #be prepopulated with a custom function, not parsed in the columns
     New-UDRow -Columns {
         New-UDColumn -Size 4 {
             New-UDCard -Title "UserOverview" -Text "This is a page to view user information"
             }
         New-UDColumn -Size 4 -Endpoint {
-            $ADUsers = Get-ADUser -filter * -properties Enabled, LockedOut, EmailAddress
-            $UserCount = $ADUsers.Count
-            $EnabledUserCount = ($ADUsers | Where-Object -Property Enabled -eq -Value $True).Count
-            $DisabledUserCount = $UserCount - $EnabledUserCount
-            $LockedOutUserCount = ($ADUsers | Where-Object -Property LockedOut -eq -Value $True).Count
-            $UsersWithEmail = ($ADUsers | Where-Object -Property EmailAddress -NotLike "").Count
+
             New-UdTable -Title "User Information" -Headers @(" ", " ") -Endpoint {
             @{
                 "User Count" = ($UserCount)
@@ -58,12 +59,6 @@ $UserOverviewPage = New-UDPage -Icon address_book -Name "User Overview" -Content
         New-UDColumn -Size 4 -Endpoint {
 	#It would be really great to add some default color scheme to this chart...
             New-UDChart -Type Doughnut -Endpoint {
-                $ADUsers = Get-ADUser -filter * -properties Enabled, LockedOut, EmailAddress
-                $UserCount = $ADUsers.Count
-                $EnabledUserCount = ($ADUsers | Where-Object -Property Enabled -eq -Value $True).Count
-                $DisabledUserCount = $UserCount - $EnabledUserCount
-                $LockedOutUserCount = ($ADUsers | Where-Object -Property LockedOut -eq -Value $True).Count
-                $UsersWithEmail = ($ADUsers | Where-Object -Property EmailAddress -NotLike "").Count
                 $EnabledDisabledChart = @(
                     @{"type" = "enabled"
                     "Value" = $EnabledUserCount}
@@ -130,8 +125,9 @@ $ComputerLivePage = New-UDPage -Url "/computer/live/:ComputerName" -Endpoint {
         }
     }
 }
+
+$ADData = @(Invoke-Sqlcmd -Query "Select TOP 1 * from ad_summary ORDER BY date DESC")
 $ADSummaryPage = New-UDPage -Name "ADSummary" -Icon address_book -Content {
-    $ADData = @(Invoke-Sqlcmd -Query "Select TOP 1 * from ad_summary ORDER BY date DESC")
     New-UDLayout -Columns 3 -Content {
     	#AD User Unlock
         New-UDInput -Title "Unlock User" -Endpoint {
