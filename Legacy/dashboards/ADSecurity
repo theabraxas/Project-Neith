@@ -1,0 +1,12 @@
+FROM CIS GUIDELINES
+* Disable storage using reversible encryption: Computer Configuration\Policies\Windows Settings\Security Settings\Account Policies\Password Policy\Store passwords using reversible encryption
+* Ensure 'Access Credential Manager as a trusted caller' is set to 'No One'": Computer Configuration\Policies\Windows Settings\Security Settings\LocalPolicies\User Rights Assignment\Access Credential Manager as a trusted caller
+* Ensure 'Access this computer from the network' is set to 'Administrators, Remote Desktop Users': Computer Configuration\Policies\Windows Settings\Security Settings\LocalPolicies\User Rights Assignment\Access this computer from the network
+* Ensure 'Act as part of the operating system' is set to 'No One'": Computer Configuration\Policies\Windows Settings\Security Settings\LocalPolicies\User Rights Assignment\Act as part of the operating system
+* Ensure 'Adjust memory quotas for a process' is set to 'Administrators, LOCAL SERVICE, NETWORK SERVICE': Computer Configuration\Policies\Windows Settings\Security Settings\Local Policies\User Rights Assignment\Adjust memory quotas for a process
+* Ensure 'Allow log on locally' is set to 'Administrators, Users': Computer Configuration\Policies\Windows Settings\Security Settings\Local Policies\User Rights Assignment\Allow log on locally
+* Ensure 'Allow log on through Remote Desktop Services' is set to 'Administrators, Remote Desktop Users': Computer Configuration\Policies\Windows Settings\Security Settings\Local Policies\User Rights Assignment\Allow log on through Remote Desktop Services
+* Ensure 'Back up files and directories' is set to 'Administrators': Computer Configuration\Policies\Windows Settings\Security Settings\Local Policies\User Rights Assignment\Back up files and directories
+* Ensure 'Change the system time' is set to 'Administrators,LOCAL SERVICE': Computer Configuration\Policies\Windows Settings\Security Settings\Local Policies\User Rights Assignment\Change the system time
+* Ensure 'Change the time zone' is set to 'Administrators, LOCAL SERVICE, Users': Computer Configuration\Policies\Windows Settings\Security Settings\Local Policies\User Rights Assignment\Change the time zone
+* Ensure 'Create a pagefile' is set to 'Administrators': Computer Configuration\Policies\Windows Settings\Security Settings\Local Policies\User Rights Assignment\Create a pagefile

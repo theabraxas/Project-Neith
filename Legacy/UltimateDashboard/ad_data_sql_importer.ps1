@@ -20,8 +20,8 @@ $OSData = $ComputerData | Where-Object -Property "Enabled" -eq "True" | Group-Ob
 Set-Location SQLSERVER:\SQL\$computername\DEFAULT\databases\$dbname 
 
 #Load Data to SQL Table
-Invoke-Sqlcmd -Query "INSERT INTO ad_summary (date, success, total_users ,total_users_enabled ,total_groups ,total_computers ,total_enabled_computers, forest_functional_level) 
-VALUES('$QueryDate','$Success','$TotalUsers','$EnabledUsers','$TotalGroups','$TotalComputers','$EnabledComputers','$ForestFunctionalLevel')"
+Invoke-Sqlcmd -Query "INSERT INTO ad_summary (date, success, total_users ,total_users_enabled ,total_groups ,total_computers ,total_enabled_computers, forest_functional_level, os_info) 
+VALUES('$QueryDate','$Success','$TotalUsers','$EnabledUsers','$TotalGroups','$TotalComputers','$EnabledComputers','$ForestFunctionalLevel','$OSData')"
 $os_columns= Invoke-Sqlcmd -Query "Select * from INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'ad_summary'"
 Foreach ($OS in $OSData) { 
     $osname = $os.name
@@ -45,20 +45,5 @@ Foreach ($Computer in $ComputerData) {
     $DNSName = $Computer.DNSHostName
     $Query = "INSERT INTO ad_computers (comp_name,operating_system,last_logon_time,bad_kerb_method,enabled,dns_name) VALUES 
     ('$Name','$OS','$LastLogonTime','$BadKerbPlaceholder','$Enabled','$DNSName')"
-    Invoke-Sqlcmd -Query $Query
-}
-
-Foreach ($User in $UserData) {
-    $Name = $User.Name
-    $SAMName = $User.SamAccountName
-    $LockedOut = $User.LockedOut
-    $LastLogonDate = $User.LastLogonDate
-    $PhoneNumber = $User.OfficePhone
-    $Enabled = $User.Enabled
-    $PasswordLastSet = $User.PasswordLastSet
-    $CreatedOn = $User.whenCreated
-    $EmailAddress = $User.EmailAddress
-    $Query = "INSERT INTO ad_users (user_SAM_name,name,user_created,last_logon_date,user_extension,enabled,LockedOut,password_last_set,email_address) VALUES 
-    ('$SAMName','$Name','$CreatedOn','$LastLogonDate','$PhoneNumber','$Enabled','$LockedOut','$PasswordLastSet','$EmailAddress')"
     Invoke-Sqlcmd -Query $Query
 }

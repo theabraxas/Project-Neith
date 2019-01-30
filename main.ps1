@@ -1,11 +1,4 @@
-#Primary Dashboard
-
-Get-ChildItem -Path C:\Users\stewart.olson\ultimatedashboard\pages -Filter *.ps1 -Recurse | ForEach-Object {
-    . $_.FullName
-}
-
-#. C:\Users\stewart.olson\ultimatedashboard\template_generator.ps1
-#. C:\Users\stewart.olson\ultimatedashboard\db_setup.ps1
+﻿#Primary Dashboard
 
 #SQL Template Requirements
 $SQLInstance = "localhost"
@@ -22,6 +15,12 @@ Catch {
 
 #Set location to db location for shorter cmds
 Set-Location SQLSERVER:\SQL\$computername\DEFAULT\databases\$dbname 
+
+Get-ChildItem -Path C:\Users\stewart.olson\ultimatedashboard\pages -Filter *.ps1 -Recurse | ForEach-Object {
+    . $_.FullName
+}
+
+
 
 $ActiveIntegrations = Invoke-Sqlcmd -Query "Select template_name,variablename from template_configs where active = 'yes'"
 

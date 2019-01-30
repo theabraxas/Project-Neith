@@ -1,0 +1,39 @@
+Recent Changes
+* New Users past 24h vs average past 30/7 days
+* New Computers past 24h vs average past 30/7 days
+
+Email
+* Exchange Spam
+* Exchange AV/etc
+* Exchange by mailflow rule
+* Ironport Stats
+* Proofpoint Stats
+* Mimecast Stats
+
+Failed AD Logons
+* Failed AD Logons past hour last 24h
+* Failed AD Logons past day last 30
+* Failed AD Logons per month last 12
+
+Lockedout AD Accounts 
+* Lockedout accounts per hour last 12/24
+
+O365 Security Alerts
+* Risky Logins
+* O365 Alerts from Sec & Compliance Center API
+
+Critical/High AV detections (Cylance, Crowdstrike)
+* Table past [hour, day, week]
+* Stats past day last 30
+
+Threat Intelligence
+* OTX Responses
+
+
+
+
+# OTX API Notes
+Most of these API requests will work without authentication. However it's worth using an API key, as it allows 10,000 requests per hour rather than just 1,000 requests per hour. Exceeding 10,000 requests per hour is normally fine so long as you let us know in advance. You can also use the API key to choose to only get data from users you have said you trust.
+
+# IP Abuse DB 
+https://docs.abuseipdb.com/#introduction

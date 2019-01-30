@@ -56,6 +56,22 @@ $QueryDate = Get-Date
 
 Set-Location SQLSERVER:\SQL\$computername\DEFAULT\databases\$dbname 
 
+Invoke-SqlCmd -Query "DROP TABLE template_configs"
+
+Invoke-Sqlcmd -Query "CREATE TABLE template_configs (
+    template_name varchar(24),
+    description text,
+    active text,
+    username varchar(24),
+    password text,
+    apisecret text,
+    apikey text,
+    ipaddr text,
+    clustername text,
+    hostname text,
+    domainname text
+    );"
+
 Invoke-Sqlcmd -Query "UPDATE template_configs SET username = 'asdf' WHERE template_name = 'AD'"
 
 #Use csv and load to db (opt)
@@ -123,6 +139,6 @@ $TemplateLoader = New-UDPage -Name "Configure" -Content {
 
 $MyDashboard = New-UDDashboard -Pages @($HomePage, $ComputerPage, $ComputerLivePage, $SecurityPage, $UserOverviewPage, $UserInfo, $TemplateLoader) #Make list of pages to dynamically load here
 
-Start-UDDashboard -Port 1001 -Dashboard $MyDashboard
+Start-UDDashboard -Port 1000 -Dashboard $MyDashboard
 
 

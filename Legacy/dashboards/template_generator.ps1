@@ -1,4 +1,4 @@
-#SQL Template Requirements
+﻿#SQL Template Requirements
 
 $SQLInstance = "localhost"
 $dbname = "ultimateDashboard"
@@ -12,8 +12,7 @@ Invoke-SqlCmd -Query "DROP TABLE template_configs"
 Invoke-Sqlcmd -Query "CREATE TABLE template_configs (
     template_name varchar(24),
     description text,
-    active varchar(24),
-    variablename varchar(24),
+    active text,
     username varchar(24),
     password text,
     apisecret text,
@@ -40,9 +39,8 @@ $ADCard =  New-UDInput -Title "AD Info" -Content {
     } -Endpoint {
             param($DomainName,$Username,$Password)
             $TemplateType = "AD"
-            $Varname = "ADPage"
             New-UDInputAction -Content @(
-                Invoke-Sqlcmd -ServerInstance 'localhost' -Database 'ultimateDashboard' -Query "update template_configs set active = 'yes', variablename = '$Varname', username = '$Username', password = '$Password', domainname = '$Domainname' where template_name = '$TemplateType'"
+                Invoke-Sqlcmd -ServerInstance 'localhost' -Database 'ultimateDashboard' -Query "update template_configs set active = 'yes', username = '$Username', password = '$Password', domainname = '$Domainname' where template_name = '$TemplateType'"
                 New-UDCard -Title "New Pages Generated" -Text "$DomainName, $Username, $Password"
      )}
 
@@ -52,9 +50,8 @@ $CylanceCard =  New-UDInput -Title "Cylance Info" -Content {
     } -Endpoint {
             param($apikey,$secretkey)
             $TemplateType = "Cylance"
-            $Varname = "CylancePage"
             New-UDInputAction -Content @(
-                Invoke-Sqlcmd -ServerInstance 'localhost' -Database 'ultimateDashboard' -Query "update template_configs set active = 'yes', variablename = '$Varname', apikey = '$apikey', apisecret = '$secretkey' where template_name = '$TemplateType'"
+                Invoke-Sqlcmd -ServerInstance 'localhost' -Database 'ultimateDashboard' -Query "update template_configs set active = 'yes', apikey = '$apikey', apisecret = '$secretkey' where template_name = '$TemplateType'"
                 New-UDCard -Title "New Pages Generated" -Text "$apikey, $secretkey, CylanceCard"
      )}
 
@@ -65,9 +62,8 @@ $VMwareCard =  New-UDInput -Title "VMWare Info" -Content {
     } -Endpoint {
             param($UserName,$Password,$ClusterName)
             $TemplateType = "VMware"
-            $Varname = "VMwarePage"
             New-UDInputAction -Content @(
-                Invoke-Sqlcmd -ServerInstance 'localhost' -Database 'ultimateDashboard' -Query "update template_configs set active = 'yes', username = '$Username', variablename = '$Varname', password = '$Password', clustername = '$Clustername' where template_name = '$TemplateType'"
+                Invoke-Sqlcmd -ServerInstance 'localhost' -Database 'ultimateDashboard' -Query "update template_configs set active = 'yes', username = '$Username', password = '$Password', clustername = '$Clustername' where template_name = '$TemplateType'"
                 New-UDCard -Title "New Pages Generated" -Text "$UserName, $Password, $ClusterName"
      )}
 
