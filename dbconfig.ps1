@@ -52,6 +52,51 @@ Invoke-Sqlcmd -Query "CREATE TABLE ad_users (
     password_last_set varchar(80)
     );"
 
+#VMWare Hosts
+Invoke-Sqlcmd -Query "CREATE TABLE vmware_hosts (
+    host_name varchar(80) PRIMARY KEY,
+    power varchar(80),
+    connected varchar(80),
+    manufacturer varchar(80),
+    model varchar(80),
+    num_cpu int,
+    mem_totalgb varchar(80),
+    proc_type varchar(80),
+    hyper_threading varchar(80),
+    version varchar(80),
+    build varchar(80),
+    parent varchar(80),
+    net_info varchar(80),
+    datastore_count varchar(80)
+    );"
+
+#VMware VMs
+Invoke-Sqlcmd -Query "CREATE TABLE vmware_guests (
+    host_name varchar(80) PRIMARY KEY,
+    power varchar(80),
+    notes varchar(200),
+    guest varchar(80),
+    num_cpu int,
+    mem_totalgb int,
+    vm_host varchar(80),
+    folder varchar(80),
+    version varchar(80),
+    datastore_count varchar(80),
+    provisioned_space varchar(80),
+    used_space varchar(80),
+    tools_version varchar(80),
+    );"
+
+#VMware Summary Table
+Invoke-Sqlcmd -Query "CREATE TABLE vmware_summary (
+    date datetime PRIMARY KEY,
+    num_hosts varchar(80),
+    num_vms varchar(80),
+    num_cpu varchar(80),
+    mem_totalgb varchar(80),
+    datastore_count int
+    );"
+
 #Technology Template Table
 Invoke-Sqlcmd -Query "CREATE TABLE template_configs (
     template_name varchar(24) PRIMARY KEY,
