@@ -1,5 +1,5 @@
 $CylanceBaseURL = "https://protect.cylance.com/Reports/ThreatDataReportV1/"
-$APIToken = #enter your api key here!
+$APIToken = "75630645C8074CF6B9B9D95FFB425744" #replace with query
 $APIEndpoints = "threats,devices,events,indicators,cleared,policies,externaldevices,memoryprotection"
 
 #Initial Objects
@@ -20,7 +20,7 @@ $DevicesByPolicy = $DeviceData | Group-Object -Property Policy | Select-Object C
 #Other Stats
 $CylanceComputerCount = $DeviceData.Count
 
-$dash = New-UDDashboard -Title "Cylance Dashboard" -Content {
+$dash = New-UDPage -Name "Hello" -Content {
     New-UDLayout -Columns 3 -Content {
         New-UDChart -Title "Devices by Zone" -Type Bar -Endpoint {
             $DevicesByZone | Foreach-Object {
@@ -39,4 +39,5 @@ $dash = New-UDDashboard -Title "Cylance Dashboard" -Content {
     }
 }
 
-Start-UDDashboard -Dashboard $dash
+$derp = New-UDDashboard -Pages @($dash)
+Start-UDDashboard -Dashboard $derp
