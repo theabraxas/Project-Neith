@@ -60,7 +60,10 @@ Invoke-Sqlcmd -Query "CREATE TABLE vmware_hosts (
     manufacturer varchar(80),
     model varchar(80),
     num_cpu int,
+    cpu_total int,
+    cpu_usage int,
     mem_totalgb varchar(80),
+    mem_usagegb varchar(80),
     proc_type varchar(80),
     hyper_threading varchar(80),
     version varchar(80),
@@ -93,6 +96,9 @@ Invoke-Sqlcmd -Query "CREATE TABLE vmware_summary (
     num_hosts varchar(80),
     num_vms varchar(80),
     num_cpu varchar(80),
+    cpu_total varchar(80),
+    cpu_usage varchar(80),
+    mem_usagegb varchar(80),
     mem_totalgb varchar(80),
     datastore_count int
     );"

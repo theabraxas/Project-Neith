@@ -37,8 +37,8 @@ Foreach ($int in $ActiveIntegrations) {
     }
 }
 
-$pages += $ADPage
-$pages += $CylancePage
+#$pages += $ADPage
+#$pages += $CylancePage
 $Pages += $TemplatePage
 
 $MyDashboard = New-UDDashboard -Pages $pages -Title "I need a name"

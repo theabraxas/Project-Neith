@@ -9,6 +9,9 @@ $HostInfo = Get-VMHost #get-vmhostfirmware, get-vmhosthardware
 $numHosts = $HostInfo.count
 $ClusterCPUCount = 0
 $ClusterMemTotal = 0
+$ClusterCPUTotalMhz = 0
+$ClusterCPUUsageMhz = 0
+$ClusterMemoryUsage = 0
 $ClusterDatastoreCount = 0
 $VMInfo = Get-VM #get-vmguest gets ip, os, disks,
 $VMCount = $VMInfo.count
@@ -22,6 +25,9 @@ $datetime = Get-Date
 Foreach ($H in $HostInfo) {
     $clusterCPUCount += $H.NumCpu
     $clusterMemTotal += $H.MemoryTotalGB
+    $ClusterCPUTotalMhz += $H.CpuTotalMhz
+    $ClusterCPUUsageMhz += $H.CpuUsageMhz
+    $ClusterMemoryUsage += $H.MemoryUsageGB
     $ClusterDatastoreCount += ($H |Select -ExpandProperty DatastoreIdList).count
     }
 
@@ -35,7 +41,10 @@ ForEach ($VMHost in $HostInfo) {
     $manufacturer = $VMHost.Manufacturer
     $model = $VMHost.Model
     $num_cpu = $VMHost.NumCpu
+    $cpu_available = $VMHost.CpuTotalMhz
+    $cpu_used = $VMHost.CpuUsageMhz
     $MemTotalGB = $VMHost.MemoryTotalGB
+    $MemUsageGB = $VMHost.MemoryUsageGB
     $ProcType = $VMHost.ProcessorType
     $HyperThreading = $VMHost.HyperthreadingActive
     $VMversion = $VMHost.version
@@ -43,8 +52,8 @@ ForEach ($VMHost in $HostInfo) {
     $VMParent = $VMHost.parent
     $Net_info = $VMHost.NetworkInfo
     $DatastoreCount = ($VMHost |Select -ExpandProperty DatastoreIdList).count
-    Invoke-Sqlcmd -Query "INSERT INTO vmware_hosts (host_name, power, connected, manufacturer, model, num_cpu, mem_totalgb, proc_type, hyper_threading, version, build, parent, net_info, datastore_count) 
-VALUES('$host_name','$host_power','$connected','$manufacturer','$model','$num_cpu','$MemTotalGB','$ProcType','$HyperThreading','$VMversion','$VMBuild','$VMParent','$Net_info','$DatastoreCount')"
+    Invoke-Sqlcmd -Query "INSERT INTO vmware_hosts (host_name, power, connected, manufacturer, model, num_cpu, cpu_total, cpu_usage, mem_totalgb, mem_usagegb, proc_type, hyper_threading, version, build, parent, net_info, datastore_count) 
+VALUES('$host_name','$host_power','$connected','$manufacturer','$model','$num_cpu', '$CPU_available', '$CPU_Used','$MemTotalGB', '$MemUsageGB', '$ProcType','$HyperThreading','$VMversion','$VMBuild','$VMParent','$Net_info','$DatastoreCount')"
     }
 
 #Load VMGuest Table
@@ -67,5 +76,5 @@ VALUES('$vm_name','$vm_power','$vm_notes','$guest','$num_cpu','$MemTotalGB','$VM
     }
 
 #Load VMWare Summary Table
-Invoke-SqlCmd -Query "INSERT INTO vmware_summary (date, num_hosts, num_vms, num_cpu, mem_totalgb, datastore_count)
-VALUES('$datetime','$numHosts','$VMCount','$clusterCPUCount','$clusterMemTotal','$ClusterDatastoreCount');"
+Invoke-SqlCmd -Query "INSERT INTO vmware_summary (date, num_hosts, num_vms, num_cpu, cpu_total, cpu_usage, mem_usagegb, mem_totalgb, datastore_count)
+VALUES('$datetime','$numHosts','$VMCount','$clusterCPUCount', '$ClusterCPUTotalMhz', '$ClusterCPUUsageMhz','$ClusterMemoryUsage','$clusterMemTotal','$ClusterDatastoreCount');"
