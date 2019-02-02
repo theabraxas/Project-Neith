@@ -13,27 +13,26 @@
 
 $CylanceCard =  New-UDInput -Title "Cylance Info" -Content {
                 New-UDInputField -type textbox -Name APIkey -Placeholder "API Key"
-                New-UDInputField -type textbox -Name Secretkey -Placeholder "Secret Key"
     } -Endpoint {
             param($apikey,$secretkey)
             $TemplateType = "Cylance"
             $Varname = "CylancePage"
             New-UDInputAction -Content @(
-                Invoke-Sqlcmd -ServerInstance 'localhost' -Database 'ultimateDashboard' -Query "update template_configs set active = 'yes', variablename = '$Varname', apikey = '$apikey', apisecret = '$secretkey' where template_name = '$TemplateType'"
-                New-UDCard -Title "New Pages Generated" -Text "$apikey, $secretkey, CylanceCard"
+                Invoke-Sqlcmd -ServerInstance 'localhost' -Database 'ultimateDashboard' -Query "UPDATE template_configs SET active = 'yes', variablename = '$Varname', apikey = '$apikey'  WHERE template_name = '$TemplateType'"
+                New-UDCard -Title "Data Saved to Database" -Text "$apikey, CylanceCard"
      )}
 
 $VMwareCard =  New-UDInput -Title "VMWare Info" -Content {
                 New-UDInputField -type textbox -Name UserName -Placeholder "Username"
                 New-UDInputField -type textbox -Name Password -Placeholder "Password"
-                New-UDInputField -type textbox -Name ClusterName -Placeholder "ClusterName"
+                New-UDInputField -type textbox -Name ClusterName -Placeholder "vCenterName"
     } -Endpoint {
             param($UserName,$Password,$ClusterName)
             $TemplateType = "VMware"
             $Varname = "VMwarePage"
             New-UDInputAction -Content @(
-                Invoke-Sqlcmd -ServerInstance 'localhost' -Database 'ultimateDashboard' -Query "update template_configs set active = 'yes', username = '$Username', variablename = '$Varname', password = '$Password', clustername = '$Clustername' where template_name = '$TemplateType'"
-                New-UDCard -Title "New Pages Generated" -Text "$UserName, $Password, $ClusterName"
+                Invoke-Sqlcmd -ServerInstance 'localhost' -Database 'ultimateDashboard' -Query "update template_configs set active = 'yes', username = '$Username', variablename = '$Varname', password = '$Password', clustername = '$vCenterName' where template_name = '$TemplateType'"
+                New-UDCard -Title "New Pages Generated" -Text "$UserName, $Password, $vCenterName"
      )}
 
 $Integrations= @{AD=@('integration for active directory domain');Cylance=@('integration for cylance tenant');VMWare=@('Integration for VMware technology.')} #Select integration_names from integrations

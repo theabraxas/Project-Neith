@@ -20,6 +20,16 @@ $VMWareSummaryPage = New-UDPage -Name "VMWare" -Icon desktop -Endpoint {
             'CPU Percentage' = [Math]::Round($CPU_Percent,2)
             }).GetEnumerator() | Out-UDTableData -Property @("name","value")
         }
+        New-UDInput -Title "Enter Computer Name: " -Endpoint {
+            param($ComputerName)
+            New-UDInputAction -RedirectUrl "/computer/main/$ComputerName"
+        }
+        New-UDInput -Title "Enter Host Name"  -Endpoint {
+            param($ComputerName)
+            New-UDInputAction -RedirectUrl "/computer/main/$ComputerName"
+        }
+    }
+    New-UDLayout -Columns 2 -Content {
         New-UdChart -Title "CPU Total vs Usage per Host" -Type Bar -Endpoint {
              $VMWareHostData | ForEach-Object {
             [PSCustomObject]@{ Name = $_.host_name;
@@ -37,14 +47,6 @@ $VMWareSummaryPage = New-UDPage -Name "VMWare" -Icon desktop -Endpoint {
             New-UdChartDataset -DataProperty "Memory Total" -Label "Memory Total" -BackgroundColor "#80962F23" -HoverBackgroundColor "#80962F23"
             New-UdChartDataset -DataProperty "Memory Usage" -Label "Memory Usage" -BackgroundColor "#8014558C" -HoverBackgroundColor "#8014558C"
             )
-        }
-        New-UDInput -Title "Enter Computer Name: " -Endpoint {
-            param($ComputerName)
-            New-UDInputAction -RedirectUrl "/computer/main/$ComputerName"
-        }
-        New-UDInput -Title "Enter Host Name"  -Endpoint {
-            param($ComputerName)
-            New-UDInputAction -RedirectUrl "/computer/main/$ComputerName"
         }
     }
 }
