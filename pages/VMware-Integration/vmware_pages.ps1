@@ -1,17 +1,42 @@
 ﻿$VMWareSummaryData= @(Invoke-Sqlcmd -Query "Select TOP 1 * from vmware_summary ORDER BY date DESC")
 $VMWareHostData = @(Invoke-Sqlcmd -Query "SELECT * FROM vmware_hosts")
 $VMWareVMData = @(Invoke-Sqlcmd -Query "SELECT * FROM vmware_guests")
+$CPU_Percent = ($VMWareSummaryData.cpu_usage / $VMWareSummaryData.cpu_total) * 100
+$Mem_Percent = ($VMWareSummaryData.mem_usagegb / $VMWareSummaryData.mem_totalgb) * 100
 
 
 $VMWareSummaryPage = New-UDPage -Name "VMWare" -Icon desktop -Endpoint {
     New-UDLayout -Columns 3 -Content {
         New-UdTable -Title "VMware Information" -Headers @("name", "value") -Endpoint {
-        @{
+        ([ordered]@{
             'Number of Hosts' = $VMWareSummaryData.num_hosts
-            'Number of CPUs' = $VMWareSummaryData.num_cpu
             'Number of VMs' = $VMWareSummaryData.num_vms
-            'RAM' =  [math]::Round($VMWareSummaryData.mem_totalgb)
-        }.GetEnumerator() | Out-UDTableData -Property @("name","value")
+            'Number of CPUs' = $VMWareSummaryData.num_cpu
+            'Memory Total' =  [math]::Round($VMWareSummaryData.mem_totalgb)
+            'Memory Usage' = [math]::Round($VMWareSummaryData.mem_usagegb)
+            'Memory Percentage' = [Math]::Round($Mem_Percent,2)
+            'CPU Total' = $VMWareSummaryData.cpu_total
+            'CPU Usage' = $VMWareSummaryData.cpu_usage
+            'CPU Percentage' = [Math]::Round($CPU_Percent,2)
+            }).GetEnumerator() | Out-UDTableData -Property @("name","value")
+        }
+        New-UdChart -Title "CPU Total vs Usage per Host" -Type Bar -Endpoint {
+             $VMWareHostData | ForEach-Object {
+            [PSCustomObject]@{ Name = $_.host_name;
+                "CPU Total" = $_.cpu_total;
+                "CPU Usage" = $_.cpu_usage; } } | Out-UDChartData -LabelProperty "Name" -Dataset @(
+            New-UdChartDataset -DataProperty "CPU Total" -Label "CPU Total" -BackgroundColor "#80962F23" -HoverBackgroundColor "#80962F23"
+            New-UdChartDataset -DataProperty "CPU Usage" -Label "CPU Used" -BackgroundColor "#8014558C" -HoverBackgroundColor "#8014558C"
+            )
+        }
+        New-UdChart -Title "Memory Total vs Usage per Host" -Type Bar -Endpoint {
+            $VMWareHostData | ForEach-Object {
+            [PSCustomObject]@{ Name = $_.host_name;
+                "Memory Total" = $_.mem_totalgb;
+                "Memory Usage" = $_.mem_usagegb; } } | Out-UDChartData -LabelProperty "Name" -Dataset @(
+            New-UdChartDataset -DataProperty "Memory Total" -Label "Memory Total" -BackgroundColor "#80962F23" -HoverBackgroundColor "#80962F23"
+            New-UdChartDataset -DataProperty "Memory Usage" -Label "Memory Usage" -BackgroundColor "#8014558C" -HoverBackgroundColor "#8014558C"
+            )
         }
         New-UDInput -Title "Enter Computer Name: " -Endpoint {
             param($ComputerName)
@@ -21,24 +46,7 @@ $VMWareSummaryPage = New-UDPage -Name "VMWare" -Icon desktop -Endpoint {
             param($ComputerName)
             New-UDInputAction -RedirectUrl "/computer/main/$ComputerName"
         }
-        New-UdChart -Title "Memory Total vs Usage per Host" -Type Bar -AutoRefresh -Endpoint {
-            Get-CimInstance -ClassName Win32_LogicalDisk | ForEach-Object {
-            [PSCustomObject]@{ DeviceId = $_.DeviceID;
-                Size = [Math]::Round($_.Size / 1GB, 2);
-                FreeSpace = [Math]::Round($_.FreeSpace / 1GB, 2); } } | Out-UDChartData -LabelProperty "DeviceID" -Dataset @(
-            New-UdChartDataset -DataProperty "Size" -Label "Size" -BackgroundColor "#80962F23" -HoverBackgroundColor "#80962F23"
-            New-UdChartDataset -DataProperty "FreeSpace" -Label "Free Space" -BackgroundColor "#8014558C" -HoverBackgroundColor "#8014558C"
-            )
-            }
-        New-UdChart -Title "CPU Total vs Usage per Host" -Type Bar -AutoRefresh -Endpoint {
-            Get-CimInstance -ClassName Win32_LogicalDisk | ForEach-Object {
-            [PSCustomObject]@{ DeviceId = $_.DeviceID;
-                Size = [Math]::Round($_.Size / 1GB, 2);
-                FreeSpace = [Math]::Round($_.FreeSpace / 1GB, 2); } } | Out-UDChartData -LabelProperty "DeviceID" -Dataset @(
-            New-UdChartDataset -DataProperty "Size" -Label "Size" -BackgroundColor "#80962F23" -HoverBackgroundColor "#80962F23"
-            New-UdChartDataset -DataProperty "FreeSpace" -Label "Free Space" -BackgroundColor "#8014558C" -HoverBackgroundColor "#8014558C"
-            )
-            }
-        }
     }
+}
+
 $VMwarePage = @($VMWareSummaryPage)

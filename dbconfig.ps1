@@ -3,7 +3,6 @@
 #initial vars
 $SQLInstance = "localhost"
 $dbname = "ultimateDashboard"
-$tableNames = {"ad_summary", "security_summary", "ad_daily_computers", "ad_daily_users"}
 $computername = hostname
 
 #DatabaseCreation
