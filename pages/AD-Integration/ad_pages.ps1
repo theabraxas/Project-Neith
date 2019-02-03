@@ -96,6 +96,17 @@ $ComputerPage = New-UDPage -Url "/computer/main/:ComputerName" -Endpoint {
             'LAPS PW' = ($pw) 
             }.GetEnumerator() | Out-UDTableData -Property @("Name", "Value")
         } 
+        New-UDInput -Title "Run Remote Command" -Content {
+            New-UDInputField -type textbox -Name Command 
+            } -Endpoint {
+                param($Command) 
+                $scriptblock = [scriptblock]::Create($Command)
+                $cmd_result = Invoke-Command -ComputerName $Computername -ScriptBlock $scriptblock 
+                New-UDInputAction -Content @(
+                    New-UDCard -Title "Command Result" -Text "Command Completed Successfully`n$cmd_result"
+                    )
+            }
+
         New-UdGrid -Title "Services" -Headers @("Name", "Status") -Properties @("DisplayName", "Status") -AutoRefresh -RefreshInterval 60 -Endpoint { 
             Get-Service -ComputerName $ComputerName |select-object DisplayName,Status | Out-UDGridData
         }
