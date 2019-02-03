@@ -9,15 +9,26 @@ If ($CylanceActive.active -eq "yes") {
     $APIToken = (Invoke-SqlCmd -Query "SELECT apikey FROM template_configs WHERE template_name = 'Cylance'").apikey
     $APIEndpoints = "threats,devices,events,indicators,cleared,policies,externaldevices,memoryprotection"
 
-    #Initial Objects
-    $DeviceData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/devices/$ApiToken" | ConvertFrom-CSV
-    $ThreatData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/threats/$ApiToken" | ConvertFrom-CSV
-    $EventsData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/events/$ApiToken" | ConvertFrom-CSV
-    $IndicatorData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/indicators/$ApiToken" | ConvertFrom-CSV
-    $ClearedData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/cleared/$ApiToken" | ConvertFrom-CSV
-    $PolicyData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/policies/$ApiToken" | ConvertFrom-CSV
-    $ExtDevData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/externaldevices/$ApiToken" | ConvertFrom-CSV
-    $MemProtectData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/memoryprotection/$ApiToken" | ConvertFrom-CSV
+    #Initial Objects #Ideally loop through these and use the APIEndpoints above, use a conditional for the -Replace statement
+    $DeviceData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/devices/$ApiToken"
+    $DeviceData = $DeviceData -Replace 'ï»¿','' | ConvertFrom-CSV
+    #This can be refreshed with each table load
+    $ThreatData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/threats/$ApiToken"
+    $ThreatData = $ThreatData -Replace 'ï»¿','' | ConvertFrom-CSV
+    #UID on Last Found+sha256+devicename
+    $EventsData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/events/$ApiToken" 
+    $EventsData = $EventsData -Replace 'ï»¿','' | ConvertFrom-CSV
+    #UID on Date,Device name, 
+    $IndicatorData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/indicators/$ApiToken"
+    $IndicatorData = $IndicatorData -Replace 'ï»¿','' | ConvertFrom-CSV
+    $ClearedData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/cleared/$ApiToken" 
+    $ClearedData = $ClearedData -Replace 'ï»¿','' | ConvertFrom-CSV
+    $PolicyData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/policies/$ApiToken" 
+    $PolicyData = $PolicyData -Replace 'ï»¿','' | ConvertFrom-CSV
+    $ExtDevData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/externaldevices/$ApiToken" 
+    $ExtDevData = $ExtDevData -Replace 'ï»¿','' | ConvertFrom-CSV
+    $MemProtectData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/memoryprotection/$ApiToken" 
+    $MemProtectData = $MemProtectData -Replace 'ï»¿','' | ConvertFrom-CSV
 
 
 
