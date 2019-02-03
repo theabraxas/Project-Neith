@@ -6,7 +6,13 @@ $LockedOutUsers = @($ADUsers | Where-Object -Property LockedOut -eq -Value $True
 $LockedOutUserCount = $LockedOutUsers.Count
 $UsersWithEmail = ($ADUsers | Where-Object -Property EmailAddress -NotLike "").Count
 $ADData = @(Invoke-Sqlcmd -Query "Select TOP 1 * from ad_summary ORDER BY date DESC")
+$Data = Invoke-Sqlcmd -Query "SELECT * FROM ad_summary"
+$Features = @();
+Foreach ($D in $Data) {
+    $Features += [PSCustomObject]@{ "Date" = $D.date; "Users" = $D.total_users ; "EnabledUsers" = $D.total_users_enabled ; "Computers" = $D.total_computers ; "EnabledComputers" = $D.total_enabled_computers }
+    }
 
+            
 $UserInfoPage = New-UDPage -Url "/user/:UserName" -Endpoint {
     #Dynamic page which provides an overview of the users attributes.
     param($UserName)
@@ -155,7 +161,16 @@ $ADSummaryPage = New-UDPage -Name "ADSummary" -Icon signal -Content {
          New-UDTable -Title "AD Data" -Headers @("total_users", "total_users_enabled", "total_computers", "total_enabled_computers", "total_groups", "forest_functional_level") -Endpoint {
             $ADData.GetEnumerator() | Out-UDTableData -Property @("total_users", "total_users_enabled", "total_computers", "total_enabled_computers", "total_groups", "forest_functional_level")
         }
+        New-UDChart -Title "AD Features Over Time" -Height 600px -Width 100% -Type Line -Endpoint {
+            $Features | Out-UDChartData -LabelProperty Date -Dataset @(
+                New-UDChartDataset -DataProperty "Users" -Label "Users"  -BackgroundColor "#80962F23" -HoverBackgroundColor "#80962F23"
+                New-UDChartDataset -DataProperty "Computers" -Label "Computers" -BackgroundColor "#8014558C" -HoverBackgroundColor "#8014558C"
+                New-UDChartDataset -DataProperty "EnabledUsers" -Label "EnabledUsers" -BackgroundColor "#800FF22F" -HoverBackgroundColor "#800FF22F"
+                New-UDChartDataset -DataProperty "EnabledComputers" -Label "EnabledComputers" -BackgroundColor "#803AE8CE" -HoverBackgroundColor "#803AE8CE"
+                )
+            }
+        }
     }
-}
+
 
 $ADPage = @($ADSummaryPage, $UserInfoPage, $UserOverviewPage, $ComputerPage, $ComputerLivePage)
