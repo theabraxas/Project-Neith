@@ -38,6 +38,11 @@ Invoke-Sqlcmd -Query "CREATE TABLE ad_computers (
     dns_name text
     );"
 
+#Create OS Summary Table
+Invoke-Sqlcmd -Query "CREATE TABLE ad_os_summary (
+    date datetime
+    )"
+
 #Create AD User Summary Table
 Invoke-Sqlcmd -Query "CREATE TABLE ad_users (
     user_SAM_name varchar(80),
@@ -50,6 +55,23 @@ Invoke-Sqlcmd -Query "CREATE TABLE ad_users (
     email_address varchar(80),
     password_last_set varchar(80)
     );"
+
+#Create AD Group Summary Table
+Invoke-Sqlcmd -Query "CREATE TABLE ad_groups (
+    objectsid varchar(250) PRIMARY KEY,
+    samaccountname varchar(250),
+    members varchar(1000),
+    member_count int,
+    memberof varchar(1000),
+    memberof_count int,
+    created datetime,
+    modified datetime,
+    description varchar(250),
+    groupcategory varchar(80),
+    groupscope varchar(80),
+    protect_from_deletion varchar(80),
+    managedby varchar(250),
+    )"
 
 #VMWare Hosts
 Invoke-Sqlcmd -Query "CREATE TABLE vmware_hosts (

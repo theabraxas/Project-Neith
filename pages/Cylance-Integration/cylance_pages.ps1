@@ -38,7 +38,7 @@ If ($CylanceActive.active -eq "yes") {
 
     #Chart Data
     $Top10ComputersWithBlockedThreats = $ClearedData | Group-Object -property "Device Name" | Sort-Object -Property "Count" -Descending | Select-Object Count, Name -First 10 
-    $Top10ComputersWithBlockedThreats = $Stuff |Group-Object -Property "device_name" |Sort-Object -Property "Count" -Descending |Select-Object Count, Name -First 10
+    $Top10ComputersWithBlockedThreats = $CData |Group-Object -Property "device_name" |Sort-Object -Property "Count" -Descending |Select-Object Count, Name -First 10
     $DevicesByZone = $DeviceData | Group-Object -Property Zones | Select-Object Count, Name
     $DevicesByZone = $Ddata | Group-Object -Property Zones | Select-Object Count, Name
     $DevicesByPolicy = $DeviceData | Group-Object -Property Policy | Select-Object Count,Name

@@ -127,14 +127,14 @@ $ComputerLivePage = New-UDPage -Url "/computer/live/:ComputerName" -Endpoint {
             'Free Disk Space (C:)' = (Get-CimInstance -ComputerName $ComputerName -ClassName Win32_LogicalDisk -Filter "DeviceID='C:'").FreeSpace / 1GB | ForEach-Object { "$([Math]::Round($_, 2)) GBs " }
         }.GetEnumerator() | Out-UDTableData -Property @("Name", "Value")
         }
-        New-UDMonitor -Title "$ComputerName CPU %" -Type Line -DataPointHistory 100 -RefreshInterval 2 -Endpoint {
+        New-UDMonitor -Title "$ComputerName CPU %" -Type Line -DataPointHistory 70 -RefreshInterval 2 -Endpoint {
             Get-WmiObject -ComputerName $ComputerName win32_processor | select-object -ExpandProperty LoadPercentage | Out-UDMonitorData
         }
-        New-UDMonitor -Title "$ComputerName Free Memory %" -Type Line -DataPointHistory 100 -RefreshInterval 2 -Endpoint {
+        New-UDMonitor -Title "$ComputerName Free Memory %" -Type Line -DataPointHistory 70 -RefreshInterval 2 -Endpoint {
             $OSInfo = Get-WmiObject -ComputerName $ComputerName -Class win32_OperatingSystem
             (($OSInfo.FreePhysicalMemory / $OSInfo.TotalVisibleMemorySize) * 100) | Out-UDMonitorData
         }
-        New-UDMonitor -Title "$ComputerName IO Usage" -Type Line -DataPointHistory 100 -RefreshInterval 2 -Endpoint {
+        New-UDMonitor -Title "$ComputerName IO Usage" -Type Line -DataPointHistory 70 -RefreshInterval 2 -Endpoint {
             $TotalSystemIO = Invoke-command -computername $ComputerName -ScriptBlock {Get-Counter '\Process(_TOTAL)\IO Data Operations/sec' | Select-Object -ExpandProperty countersamples | Select-Object -expandproperty cookedvalue }
             If ($TotalSystemIO -le 0) {
                 $TotalSystemIO = 0 }

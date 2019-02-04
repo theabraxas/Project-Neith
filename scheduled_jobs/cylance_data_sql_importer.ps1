@@ -1,4 +1,6 @@
-﻿$CylanceBaseURL = "https://protect.cylance.com/Reports/ThreatDataReportV1/"
+﻿Set-Location SQLSERVER:\SQL\$computername\DEFAULT\databases\$dbname 
+
+$CylanceBaseURL = "https://protect.cylance.com/Reports/ThreatDataReportV1/"
 $APIToken = (Invoke-SqlCmd -Query "SELECT apikey FROM template_configs WHERE template_name = 'Cylance'").apikey
 $APIEndpoints = "threats,devices,events,indicators,cleared,policies,externaldevices,memoryprotection"
 
