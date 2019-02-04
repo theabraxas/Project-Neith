@@ -138,8 +138,17 @@ $ComputerLivePage = New-UDPage -Url "/computer/live/:ComputerName" -Endpoint {
             $TotalSystemIO = Invoke-command -computername $ComputerName -ScriptBlock {Get-Counter '\Process(_TOTAL)\IO Data Operations/sec' | Select-Object -ExpandProperty countersamples | Select-Object -expandproperty cookedvalue }
             If ($TotalSystemIO -le 0) {
                 $TotalSystemIO = 0 }
+            If ($TotalSystemIO -isnot [double]) {
+                $TotalSystemIO = 0 }
             [math]::Round($TotalSystemIO)| Out-UDMonitorData
-            }      
+        }
+        New-UDMonitor -Title "$ComputerName Network Usage (mbps)" -Type Line -DataPointHistory 70 -RefreshInterval 2 -Endpoint {
+            $netIO = Get-wmiobject -ComputerName $ComputerName -Query "Select BytesTotalPersec from Win32_PerfFormattedData_Tcpip_NetworkInterface" | Select -ExpandProperty BytesTotalPersec    
+            $totalNetIO = 0
+            $NetIO | foreach {$totalNetIO += $_ }
+            $totalNetIO = $totalNetIO / (1024 * 1024)
+            $totalNetIO | Out-UDMonitorData
+            }
         New-UdGrid -Title "Services" -Headers @("Name", "Status") -Properties @("DisplayName", "Status") -AutoRefresh -RefreshInterval 60 -Endpoint { 
             Get-Service -ComputerName $ComputerName |select-object DisplayName,Status | Out-UDGridData
         }
