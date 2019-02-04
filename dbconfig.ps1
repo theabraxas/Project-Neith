@@ -60,9 +60,9 @@ Invoke-Sqlcmd -Query "CREATE TABLE ad_users (
 Invoke-Sqlcmd -Query "CREATE TABLE ad_groups (
     objectsid varchar(250) PRIMARY KEY,
     samaccountname varchar(250),
-    members varchar(1000),
+    members text,
     member_count int,
-    memberof varchar(1000),
+    memberof text,
     memberof_count int,
     created datetime,
     modified datetime,
@@ -70,7 +70,7 @@ Invoke-Sqlcmd -Query "CREATE TABLE ad_groups (
     groupcategory varchar(80),
     groupscope varchar(80),
     protect_from_deletion varchar(80),
-    managedby varchar(250),
+    managedby varchar(2500),
     )"
 
 #VMWare Hosts
