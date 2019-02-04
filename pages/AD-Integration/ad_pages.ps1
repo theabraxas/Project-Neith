@@ -136,7 +136,7 @@ $ComputerLivePage = New-UDPage -Url "/computer/live/:ComputerName" -Endpoint {
         }
         New-UDMonitor -Title "$ComputerName IO Usage" -Type Line -DataPointHistory 70 -RefreshInterval 2 -Endpoint {
             $TotalSystemIO = Invoke-command -computername $ComputerName -ScriptBlock {Get-Counter '\Process(_TOTAL)\IO Data Operations/sec' | Select-Object -ExpandProperty countersamples | Select-Object -expandproperty cookedvalue }
-            If ($TotalSystemIO -le 0) {
+            If (!$TotalSystemIO) {
                 $TotalSystemIO = 0 }
             If ($TotalSystemIO -isnot [double]) {
                 $TotalSystemIO = 0 }
