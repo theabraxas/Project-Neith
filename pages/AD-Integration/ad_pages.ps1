@@ -130,9 +130,16 @@ $ComputerLivePage = New-UDPage -Url "/computer/live/:ComputerName" -Endpoint {
         New-UDMonitor -Title "$ComputerName CPU %" -Type Line -DataPointHistory 100 -RefreshInterval 2 -Endpoint {
             Get-WmiObject -ComputerName $ComputerName win32_processor | select-object -ExpandProperty LoadPercentage | Out-UDMonitorData
         }
-        New-UDMonitor -Title "$ComputerName Memory %" -Type Line -DataPointHistory 100 -RefreshInterval 2 -Endpoint {
-            Get-WmiObject -ComputerName $ComputerName -Class win32_operatingsystem | Select-Object @{Name = "MemoryUsage"; Expression = { â€œ{0:N2}â€ -f ((($_.TotalVisibleMemorySize - $_.FreePhysicalMemory)*100)/ $_.TotalVisibleMemorySize) }} | select-object -ExpandProperty "MemoryUsage" | Out-UDMonitorData
-        }      
+        New-UDMonitor -Title "$ComputerName Free Memory %" -Type Line -DataPointHistory 100 -RefreshInterval 2 -Endpoint {
+            $OSInfo = Get-WmiObject -ComputerName $ComputerName -Class win32_OperatingSystem
+            (($OSInfo.FreePhysicalMemory / $OSInfo.TotalVisibleMemorySize) * 100) | Out-UDMonitorData
+        }
+        New-UDMonitor -Title "$ComputerName IO Usage" -Type Line -DataPointHistory 100 -RefreshInterval 2 -Endpoint {
+            $TotalSystemIO = Invoke-command -computername $ComputerName -ScriptBlock {Get-Counter '\Process(_TOTAL)\IO Data Operations/sec' | Select-Object -ExpandProperty countersamples | Select-Object -expandproperty cookedvalue }
+            If ($TotalSystemIO -le 0) {
+                $TotalSystemIO = 0 }
+            [math]::Round($TotalSystemIO)| Out-UDMonitorData
+            }      
         New-UdGrid -Title "Services" -Headers @("Name", "Status") -Properties @("DisplayName", "Status") -AutoRefresh -RefreshInterval 60 -Endpoint { 
             Get-Service -ComputerName $ComputerName |select-object DisplayName,Status | Out-UDGridData
         }

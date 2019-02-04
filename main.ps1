@@ -38,7 +38,6 @@ Foreach ($int in $ActiveIntegrations) {
 }
 
 $Pages += $TemplatePage
-
-$MyDashboard = New-UDDashboard -Pages $pages -Title "I need a name"
+$MyDashboard = New-UDDashboard -Pages $pages -Title "I need a name" 
 
 Start-UDDashboard -Port 1000 -Dashboard $MyDashboard
