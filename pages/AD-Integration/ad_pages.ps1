@@ -7,6 +7,8 @@ $LockedOutUserCount = $LockedOutUsers.Count
 $UsersWithEmail = ($ADUsers | Where-Object -Property EmailAddress -NotLike "").Count
 $ADData = @(Invoke-Sqlcmd -Query "Select TOP 1 * from ad_summary ORDER BY date DESC")
 $Data = Invoke-Sqlcmd -Query "SELECT * FROM ad_summary"
+$Ticks_90days = 864000000000 * 90
+
 $Features = @();
 Foreach ($D in $Data) {
     $Features += [PSCustomObject]@{ "Date" = $D.date; "Users" = $D.total_users ; "EnabledUsers" = $D.total_users_enabled ; "Computers" = $D.total_computers ; "EnabledComputers" = $D.total_enabled_computers }
@@ -46,19 +48,26 @@ $UserInfoPage = New-UDPage -Url "/user/:UserName" -Endpoint {
     }
 }
 
-$UserOverviewPage = New-UDPage -Icon address_book -Name "User Overview" -Content {
+$UserOverviewPage = New-UDPage -Icon address_book -Name "User Overview"  -Content {
     New-UDRow -Columns {
         New-UDColumn -Size 4 {
             New-UDCard -Title "UserOverview" -Text "This is a page to view user information"
             }
         New-UDColumn -Size 4 -Endpoint {
             New-UdTable -Title "User Information" -Headers @(" ", " ") -Endpoint {
+                $PWExpired = 0
+                Foreach ($User in $ADUsers) {
+                    $pwdlastset = $User.password_last_set
+                    $threshold = ((Get-Date).Ticks - $Ticks_90days)
+                    If ($pwdlastset -lt $threshold) {$PWExpired +=1 }
+                }
             @{
                 "User Count" = ($UserCount)
                 "Enabled Users" = ($EnabledUserCount)
                 "Disabled Users" = ($DisabledUserCount)
                 "Locked Out Users" = ($LockedOutUserCount)  
-                "Users with email" = ($UsersWithEmail)      
+                "Users with email" = ($UsersWithEmail)   
+                "Users with expired pws" = ($PWExpired)   
                 }.GetEnumerator() | Out-UDTableData -Property @("Name", "Value")
             }
         }

@@ -56,11 +56,11 @@ Foreach ($User in $UserData) {
     $Name = $User.Name
     $SAMName = $User.SamAccountName
     $LockedOut = $User.LockedOut
-    $LastLogonDate = $User.LastLogonDate
+    $LastLogonDate = $User.LastLogonDate.Ticks
     $PhoneNumber = $User.OfficePhone
     $Enabled = $User.Enabled
-    $PasswordLastSet = $User.PasswordLastSet
-    $CreatedOn = $User.whenCreated
+    $PasswordLastSet = $User.PasswordLastSet.Ticks
+    $CreatedOn = $User.whenCreated.Ticks
     $EmailAddress = $User.EmailAddress
     $Query = "INSERT INTO ad_users (user_SAM_name,name,user_created,last_logon_date,user_extension,enabled,LockedOut,password_last_set,email_address) VALUES 
     ('$SAMName','$Name','$CreatedOn','$LastLogonDate','$PhoneNumber','$Enabled','$LockedOut','$PasswordLastSet','$EmailAddress')"
@@ -81,7 +81,7 @@ Foreach ($Group in $GroupData) {
     $member_count = $Group.members.count
     $memberof = $Group.memberof.Value
     $memberof_count = $Group.memberof.Count
-    $created = $Group.created
+    $created = $Group.created.Ticks
     $modified = $Group.Modified
     $description = $Group.Description
     $groupcategory = $Group.GroupCategory

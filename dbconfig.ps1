@@ -47,13 +47,13 @@ Invoke-Sqlcmd -Query "CREATE TABLE ad_os_summary (
 Invoke-Sqlcmd -Query "CREATE TABLE ad_users (
     user_SAM_name varchar(80),
     name varchar(80),
-    user_created varchar(80),
-    last_logon_date varchar(80),
+    user_created bigint,
+    last_logon_date bigint,
     user_extension varchar(80),
     enabled varchar(80),
     lockedOut varchar(80),
     email_address varchar(80),
-    password_last_set varchar(80)
+    password_last_set bigint
     );"
 
 #Create AD Group Summary Table
@@ -64,8 +64,8 @@ Invoke-Sqlcmd -Query "CREATE TABLE ad_groups (
     member_count int,
     memberof text,
     memberof_count int,
-    created datetime,
-    modified datetime,
+    created bigint,
+    modified bigint,
     description varchar(250),
     groupcategory varchar(80),
     groupscope varchar(80),
