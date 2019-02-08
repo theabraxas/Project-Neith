@@ -55,8 +55,9 @@ $UserOverviewPage = New-UDPage -Icon address_book -Name "User Overview"  -Conten
             }
         New-UDColumn -Size 4 -Endpoint {
             New-UdTable -Title "User Information" -Headers @(" ", " ") -Endpoint {
+                $EnabledUsers = ($ADUsers | Where-Object -Property Enabled -eq -Value $True)
                 $PWExpired = 0
-                Foreach ($User in $ADUsers) {
+                Foreach ($User in $EnabledUsers) {
                     $pwdlastset = $User.password_last_set
                     $threshold = ((Get-Date).Ticks - $Ticks_90days)
                     If ($pwdlastset -lt $threshold) {$PWExpired +=1 }
@@ -199,9 +200,9 @@ $ADSummaryPage = New-UDPage -Name "ADSummary" -Icon signal -Content {
         }
         New-UDChart -Title "AD Features Over Time" -Height 600px -Width 100% -Type Line -Endpoint {
             $Features | Out-UDChartData -LabelProperty Date -Dataset @(
-                New-UDChartDataset -DataProperty "Users" -Label "Users"  -BackgroundColor "#80962F23" -HoverBackgroundColor "#80962F23"
-                New-UDChartDataset -DataProperty "Computers" -Label "Computers" -BackgroundColor "#8014558C" -HoverBackgroundColor "#8014558C"
+                New-UDChartDataset -DataProperty "Users" -Label "Users" -BackgroundColor "#80962F23" -HoverBackgroundColor "#80962F23"
                 New-UDChartDataset -DataProperty "EnabledUsers" -Label "EnabledUsers" -BackgroundColor "#800FF22F" -HoverBackgroundColor "#800FF22F"
+                New-UDChartDataset -DataProperty "Computers" -Label "Computers" -BackgroundColor "#8014558C" -HoverBackgroundColor "#8014558C"
                 New-UDChartDataset -DataProperty "EnabledComputers" -Label "EnabledComputers" -BackgroundColor "#803AE8CE" -HoverBackgroundColor "#803AE8CE"
                 )
             }

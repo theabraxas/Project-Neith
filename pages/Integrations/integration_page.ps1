@@ -16,7 +16,7 @@ $CylanceCard =  New-UDInput -Title "Cylance Info" -Content {
     } -Endpoint {
             param($apikey,$secretkey)
             $TemplateType = "Cylance"
-            $Varname = "CylancePage"
+            $Varname = "CylancePages"
             New-UDInputAction -Content @(
                 Invoke-Sqlcmd -ServerInstance 'localhost' -Database 'ultimateDashboard' -Query "UPDATE template_configs SET active = 'yes', variablename = '$Varname', apikey = '$apikey'  WHERE template_name = '$TemplateType'"
                 New-UDCard -Title "Data Saved to Database" -Text "$apikey, CylanceCard"

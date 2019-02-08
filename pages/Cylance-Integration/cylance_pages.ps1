@@ -1,9 +1,17 @@
 ﻿Set-Location SQLSERVER:\SQL\$computername\DEFAULT\databases\$dbname 
 
 $CylanceActive = Invoke-SqlCmd -Query "SELECT active FROM template_configs WHERE template_name = 'Cylance'"
+#$ComputerName = "solson"
+$Query = "SELECT * FROM cylance_threat_data WHERE device_name = '$ComputerName'"
+$DetectionData = Invoke-Sqlcmd -Query $Query
+$Query = "SELECT * FROM cylance_device_data WHERE device_name = '$ComputerName'"
+$AgentData = Invoke-Sqlcmd -Query $Query
+$Threattypes = @()
+Foreach ($Threat in $DetectionData) {
+    $Threattypes += $Threat.classification}
+$Threats_by_type = $Threattypes | Group-Object |Select Name,Count
 
 If ($CylanceActive.active -eq "yes") {
-
 
     $CylanceBaseURL = "https://protect.cylance.com/Reports/ThreatDataReportV1/"
     $APIToken = (Invoke-SqlCmd -Query "SELECT apikey FROM template_configs WHERE template_name = 'Cylance'").apikey
@@ -66,35 +74,61 @@ If ($CylanceActive.active -eq "yes") {
         $os.name = $os.name.replace("Enterprise","Ent")
         $os.name = $os.name.replace("Server","Srv")
         $os.name = $os.name.replace("Standard","Std")
-        }
+    }
+}
 
-
-    $CylancePage = New-UDPage -Name "Cylance" -Icon unlock -Content {
-        New-UDLayout -Columns 3 -Content {
-            New-UDChart -Title "Devices by Zone" -Type HorizontalBar -Endpoint {
-                $DevicesByZone | Out-UDChartData -DataProperty Count -LabelProperty Name -BackgroundColor @("#75cac3","#2a6171","#f3d516","#4b989e","#86df4a","#b816f3","#f31651","#4e4b9e") -BorderColor 'black' -HoverBackgroundColor '#FF9F0D'
-            }
-            New-UDChart -Title "Devices by Policy" -Type HorizontalBar -Endpoint {
-                $DevicesByPolicy | Out-UDChartData -DataProperty Count -LabelProperty Name -BackgroundColor @("#75cac3","#2a6171","#f3d516","#4b989e","#86df4a","#b816f3","#f31651","#4e4b9e") -BorderColor 'black' -HoverBackgroundColor '#FF9F0D'
-            }
-            New-UDChart -Title "Top 10 Computers with Blocked Events" -Type Doughnut -Endpoint {
-                $Top10ComputersWithBlockedThreats | Out-UDChartData -DataProperty Count -LabelProperty Name -BackgroundColor @("#75cac3","#2a6171","#f3d516","#4b989e","#86df4a","#b816f3","#f31651","#4e4b9e","#1F1F1F","#777777","#FFFFFF") -BorderColor 'black' -HoverBackgroundColor '#FF9F0D'
-            }
-            New-UDChart -Title "Quarantined vs Unquarantined Events" -Type Doughnut -Endpoint {
-                $ThreatAction | Out-UDChartData -DataProperty Count -Label Name -BackgroundColor @("#75cac3","#2a6171","#f3d516","#4b989e","#86df4a","#b816f3","#f31651","#4e4b9e","#1F1F1F","#777777","#FFFFFF") -BorderColor 'black' -HoverBackgroundColor '#FF9F0D'
-            }
-            New-UDChart -Title "OS of Cylance Computers" -Type Doughnut -Endpoint {
-                $CylanceOSList | Out-UDChartData -DataProperty Count -LabelProperty Name -BackgroundColor @("#75cac3","#2a6171","#f3d516","#4b989e","#86df4a","#b816f3","#f31651","#4e4b9e","#1F1F1F","#777777","#FFFFFF") -BorderColor 'black' -HoverBackgroundColor '#FF9F0D'
-            }
-            New-UDChart -Title "Cleared Threats by Type" -Type Doughnut -Endpoint {
-                $ClearedThreatsByType | Out-UDChartData -DataProperty Count -Label Name -BackgroundColor @("#75cac3","#2a6171","#f3d516","#4b989e","#86df4a","#b816f3","#f31651","#4e4b9e","#1F1F1F","#777777","#FFFFFF") -BorderColor 'black' -HoverBackgroundColor '#FF9F0D'
-            }
-            New-UDCounter -Title "Cylance Computers" -Endpoint {
-                $CylanceComputerCount
-            }
-            New-UDCounter -Title "Cylance Memory Protection Events (Past 7 Days)" -Endpoint {
-                $RecentMemoryProtectHits
-            }
+$CylanceComputerPage = New-UDPage -Url "/cylance/computer/:$ComputerName" -Endpoint {
+    param($ComputerName)
+    New-UDLayout -Columns 3 -Content {
+        New-UdTable -Title "$ComputerName Agent Information" -Headers @(" ", " ") -Endpoint {
+        @{
+            'Operating System' = ($AgentData.os_version)
+            'Cylance Policy' = ($AgentData.Policy)
+            'Agent Version' = ($AgentData.agent_version)
+            'Zone' = ($AgentData.zones)
+            'Installed Date' = ($AgentData.created)
+            'Files Analyzed' = ($AgentData.files_analyzed)
+            'Last Online Date' = ($AgentData.online_date)
+            'Last Reported User' = ($AgentData.last_reported_user)
+            'IP Address' = ($AgentData.ip_addresses)
+            'MAC Addresses' = ($AgentData.mac_addresses)
+            }.GetEnumerator() | Out-UDTableData -Property @("Name", "Value")
         }
     }
 }
+
+#Add default policy counter and no-zone counters to table.
+$CylancePage = New-UDPage -Name "Cylance" -Icon unlock -Endpoint {
+    New-UDLayout -Columns 3 -Content {
+        New-UDInput -Title "Enter Computer Name: " -Endpoint {
+            param($ComputerName)
+            New-UDInputAction -RedirectUrl "/cylance/computer/$ComputerName"
+            }
+        New-UDChart -Title "Devices by Zone" -Type HorizontalBar -Endpoint {
+            $DevicesByZone | Out-UDChartData -DataProperty Count -LabelProperty Name -BackgroundColor @("#75cac3","#2a6171","#f3d516","#4b989e","#86df4a","#b816f3","#f31651","#4e4b9e") -BorderColor 'black' -HoverBackgroundColor '#FF9F0D'
+            }
+        New-UDChart -Title "Devices by Policy" -Type HorizontalBar -Endpoint {
+            $DevicesByPolicy | Out-UDChartData -DataProperty Count -LabelProperty Name -BackgroundColor @("#75cac3","#2a6171","#f3d516","#4b989e","#86df4a","#b816f3","#f31651","#4e4b9e") -BorderColor 'black' -HoverBackgroundColor '#FF9F0D'
+            }
+        New-UDChart -Title "Top 10 Computers with Blocked Events" -Type Doughnut -Endpoint {
+            $Top10ComputersWithBlockedThreats | Out-UDChartData -DataProperty Count -LabelProperty Name -BackgroundColor @("#75cac3","#2a6171","#f3d516","#4b989e","#86df4a","#b816f3","#f31651","#4e4b9e","#1F1F1F","#777777","#FFFFFF") -BorderColor 'black' -HoverBackgroundColor '#FF9F0D'
+            }
+        New-UDChart -Title "Quarantined vs Unquarantined Events" -Type Doughnut -Endpoint {
+            $ThreatAction | Out-UDChartData -DataProperty Count -Label Name -BackgroundColor @("#75cac3","#2a6171","#f3d516","#4b989e","#86df4a","#b816f3","#f31651","#4e4b9e","#1F1F1F","#777777","#FFFFFF") -BorderColor 'black' -HoverBackgroundColor '#FF9F0D'
+            }
+        New-UDChart -Title "OS of Cylance Computers" -Type Doughnut -Endpoint {
+            $CylanceOSList | Out-UDChartData -DataProperty Count -LabelProperty Name -BackgroundColor @("#75cac3","#2a6171","#f3d516","#4b989e","#86df4a","#b816f3","#f31651","#4e4b9e","#1F1F1F","#777777","#FFFFFF") -BorderColor 'black' -HoverBackgroundColor '#FF9F0D'
+            }
+        New-UDChart -Title "Cleared Threats by Type" -Type Doughnut -Endpoint {
+            $ClearedThreatsByType | Out-UDChartData -DataProperty Count -Label Name -BackgroundColor @("#75cac3","#2a6171","#f3d516","#4b989e","#86df4a","#b816f3","#f31651","#4e4b9e","#1F1F1F","#777777","#FFFFFF") -BorderColor 'black' -HoverBackgroundColor '#FF9F0D'
+            }
+        New-UDCounter -Title "Cylance Computers" -Endpoint {
+            $CylanceComputerCount
+            }
+        New-UDCounter -Title "Cylance Memory Protection Events (Past 7 Days)" -Endpoint {
+            $RecentMemoryProtectHits
+        }
+    }
+}
+
+$CylancePages = @($CylancePage, $CylanceComputerPage)
