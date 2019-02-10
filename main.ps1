@@ -1,5 +1,8 @@
 ﻿#Primary Dashboard
 
+$location = Get-Location
+$pagedir = $location.Path + "\pages"
+
 #SQL Template Requirements
 $SQLInstance = "localhost"
 $dbname = "ultimateDashboard"
@@ -13,10 +16,11 @@ Catch {
     Write-Host "Database $dbname already exists, continuing anyways"
     }
 
+
 #Set location to db location for shorter cmds
 Set-Location SQLSERVER:\SQL\$computername\DEFAULT\databases\$dbname 
 
-Get-ChildItem -Path C:\Users\stewart.olson\ultimatedashboard\pages -Filter *.ps1 -Recurse | ForEach-Object {
+Get-ChildItem -Path $pagedir -Filter *.ps1 -Recurse | ForEach-Object {
     . $_.FullName
 }
 
@@ -38,6 +42,6 @@ Foreach ($int in $ActiveIntegrations) {
 }
 
 $Pages += $TemplatePage
-$MyDashboard = New-UDDashboard -Pages $pages -Title "I need a name" 
+$MyDashboard = New-UDDashboard -Pages $pages -Title "Project Neith" 
 
 Start-UDDashboard -Port 1000 -Dashboard $MyDashboard
