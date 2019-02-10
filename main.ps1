@@ -1,4 +1,5 @@
 ﻿#Primary Dashboard
+##Make sure to run this file directly from it's location so get-location works properly
 
 $location = Get-Location
 $pagedir = $location.Path + "\pages"
@@ -7,6 +8,10 @@ $pagedir = $location.Path + "\pages"
 $SQLInstance = "localhost"
 $dbname = "ultimateDashboard"
 $computername = hostname
+Import-Module SqlServer
+
+#Set location to db location for shorter cmds
+Set-Location SQLSERVER:\SQL\$computername\DEFAULT\databases\$dbname 
 
 #DatabaseCreation
 Try {
@@ -16,11 +21,8 @@ Catch {
     Write-Host "Database $dbname already exists, continuing anyways"
     }
 
-
-#Set location to db location for shorter cmds
-Set-Location SQLSERVER:\SQL\$computername\DEFAULT\databases\$dbname 
-
-Get-ChildItem -Path $pagedir -Filter *.ps1 -Recurse | ForEach-Object {
+#Make the exclusions cleaner
+Get-ChildItem -Path $pagedir -Filter *.ps1 -Recurse -Exclude dbconfig*,*sql_importer* | ForEach-Object {
     . $_.FullName
 }
 

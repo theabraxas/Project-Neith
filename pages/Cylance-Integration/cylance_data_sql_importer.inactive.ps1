@@ -1,29 +1,24 @@
-﻿Set-Location SQLSERVER:\SQL\$computername\DEFAULT\databases\$dbname 
+﻿$computername = "localhost"
+$dbname = "ultimatedashboard"
+Set-Location SQLSERVER:\SQL\$computername\DEFAULT\databases\$dbname 
 
-$CylanceBaseURL = "https://protect.cylance.com/Reports/ThreatDataReportV1/"
+function sanitizeCylanceData {
+    [string]$URI, [string]$Target, [string]$ApiToken
+    $Result = Invoke-RestMethod -Method Get -Uri "$URI/$Target/$ApiToken"
+    $SanitizedResult = $Result -Replace 'ï»¿','' | ConvertFrom-CSV
+    New-Variable -Name $Target"Data" -Value $SanitizedResult -Scope Global
+}
+
+$URI = "https://protect.cylance.com/Reports/ThreatDataReportV1"
 $APIToken = (Invoke-SqlCmd -Query "SELECT apikey FROM template_configs WHERE template_name = 'Cylance'").apikey
-$APIEndpoints = "threats,devices,events,indicators,cleared,policies,externaldevices,memoryprotection"
+$APIEndpoints = ("threats","devices","events","indicators","cleared","policies","externaldevices","memoryprotection")
 
-#Collect and prepare data. Eventually make this loop with the $APIEndpoints list
-$DeviceData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/devices/$ApiToken"
-$DeviceData = $DeviceData -Replace 'ï»¿','' | ConvertFrom-CSV
-$ThreatData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/threats/$ApiToken"
-$ThreatData = $ThreatData -Replace 'ï»¿','' | ConvertFrom-CSV
-$EventsData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/events/$ApiToken" 
-$EventsData = $EventsData -Replace 'ï»¿','' | ConvertFrom-CSV
-$IndicatorData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/indicators/$ApiToken"
-$IndicatorData = $IndicatorData -Replace 'ï»¿','' | ConvertFrom-CSV
-$ClearedData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/cleared/$ApiToken" 
-$ClearedData = $ClearedData -Replace 'ï»¿','' | ConvertFrom-CSV
-$PolicyData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/policies/$ApiToken" 
-$PolicyData = $PolicyData -Replace 'ï»¿','' | ConvertFrom-CSV
-$ExtDevData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/externaldevices/$ApiToken" 
-$ExtDevData = $ExtDevData -Replace 'ï»¿','' | ConvertFrom-CSV
-$MemProtectData = Invoke-RestMethod -Method Get -Uri "$CylanceBaseURL/memoryprotection/$ApiToken" 
-$MemProtectData = $MemProtectData -Replace 'ï»¿','' | ConvertFrom-CSV
+Foreach ($Target in  $APIEndpoints) {
+    SanitizeCylanceData($URI,$Target,$APIToken)
+}
 
 #Insert DeviceData to Table
-ForEach ($Device in $DeviceData) {
+ForEach ($Device in $DevicesData) {
     $SN = $Device.'Serial Number'
     $DN = $Device.'Device Name'
     $OSV = $Device.'OS Version'
@@ -45,7 +40,7 @@ ForEach ($Device in $DeviceData) {
 }
 
 #Insert ThreatData to Table
-Foreach ($Threat in $ThreatData) {
+Foreach ($Threat in $ThreatsData) {
     $FN = $Threat.'file name'
     $FS = $Threat.'file status'
     $CyS = $Threat.'cylance score'
@@ -120,7 +115,7 @@ Foreach ($ClearedEvent in $ClearedData) {
     }
 
 #Insert MemprotectData to Table
-Foreach ($MemEvent in $MemProtectData) {
+Foreach ($MemEvent in $MemoryprotectionData) {
     $device_name = $MemEvent.'Device Name'
     $serial_number = $MemEvent.'Serial Number'
     $process_name = $MemEvent.'PROCESS NAME'
