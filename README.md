@@ -5,8 +5,6 @@ Neith was an early Egyptian deity said to be the first god and creator of the un
 
 Project Neith aspires to be an easily extensible dashboard which allows for the monitoring and control of virtually any remotely accessible technology. It's primary target for its initial release is to hook in to common infrastructure and security tooling which exists in most enterprises. These include systems such as Active Directory, VMware, antivirus, backup, endpoints, and more. 
 
-Project Neith has a simple workflow where integrations are selected from a list of available modules, once activated they create the appropriate database tables and scheduled tasks to retreive data if required, the pages associated with each integration are then added to the website navigation menus. Additionally, because of it's highly modular design, it is often a matter of tweaking a single file or two in order to add new visualizations, or change how the various pages look.
-
 This project is in very very early stages, please feel free to comment, open issues, and make any suggestions. I do not come from a software background so this is all new territory for me and I know there are many aspects of the programs design which can be improved. (encrypted tables for credentials/keys, breaking up the dbconfig.ps1 file, etc.)
 
 # Technologies
@@ -31,6 +29,8 @@ Optional
 
 # Tips to Contribute!
 Within the `pages` directory new integration folders are created. Each folder should have a couple files, a README explaining the ingegration, a ps1 file for the pages which will be made avaialble in the webserver, an optional file to create the database tables required. A `scheduled_tasks` file should be provided if periodic data collections are required or needed for the technology. 
+
+Project Neith has a simple workflow where integrations are selected from a list of available modules, once activated they create the appropriate database tables and scheduled tasks to retreive data if required, the pages associated with each integration are then added to the website navigation menus. Additionally, because of it's highly modular design, it is often a matter of tweaking a single file or two in order to add new visualizations, or change how the various pages look.
 
 # Starting the Dashboard
 From a PowerShell Prompt:
