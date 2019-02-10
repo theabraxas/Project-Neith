@@ -85,7 +85,7 @@ Foreach ($Group in $GroupData) {
     $memberof = $Group.memberof.Value
     $memberof_count = $Group.memberof.Count
     $created = $Group.created.Ticks
-    $modified = $Group.Modified
+    $modified = $Group.Modified.Ticks
     $description = $Group.Description
     $groupcategory = $Group.GroupCategory
     $groupscope = $Group.GroupScope
