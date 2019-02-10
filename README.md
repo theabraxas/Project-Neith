@@ -42,6 +42,31 @@ Run the `./dbconfig.ps1` script
 4) Launch Dashboard
 `./main.ps1`
 
+# Some Screenshots
+Menu with a few integrations enabled:
+![Menu based on enabled integrations](https://raw.githubusercontent.com/theabraxas/project-neith/images/menu.png)
+
+Integration selection menu:
+![List of available integrations, leads to config page](https://raw.githubusercontent.com/theabraxas/project-neith/images/templates.png)
+
+AD Summary Information Page:
+![High level information plus the ability to investigate users and computers](https://raw.githubusercontent.com/theabraxas/project-neith/images/AD_Summary.png)
+
+AD Computer Information:
+![Result of connecting to a computer from the previous image](https://raw.githubusercontent.com/theabraxas/project-neith/images/AD_Computer_Data.png)
+
+AD Computer Live Information:
+![Live Data view from the previous image](https://raw.githubusercontent.com/theabraxas/project-neith/images/AD_Computer_Detail_Data.png)
+
+AD User Summary Page:
+![User Info](https://raw.githubusercontent.com/theabraxas/project-neith/images/AD_User_Summary.png)
+
+Cylance Information:
+![User Info](https://raw.githubusercontent.com/theabraxas/project-neith/images/Cylance_Overview.png)
+
+VMware Information:
+![User Info](https://raw.githubusercontent.com/theabraxas/project-neith/images/VMware_Overview.png)
+
 # Architecture and Function
 This project is based on a web server which leverages both a database and live calls to various datasources to produce visualizations, tables, health checks, and interactive capabilities. 
 
