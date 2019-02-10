@@ -43,6 +43,8 @@ Run the `./dbconfig.ps1` script
 4) Launch Dashboard
 `./main.ps1`
 
+_Note: The data collection scripts are not yet running automatically, to load the data, navigate to the /pages/integrationname directory and run the sql_importer.ps1 scripts_
+
 # Some Screenshots
 Menu with a few integrations enabled:
 
