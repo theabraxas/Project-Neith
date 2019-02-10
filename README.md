@@ -1,13 +1,19 @@
-# UltimateDashboard
-Dashboard project which is intended to provide an operations and security dashboard which conveys important information concisely and enables quick responses on monitored systems.
+# Project Neith
+This project is named after an early Egyptian deity who was said to be the first god and creator of the universe. It is also said she controlled and knew all that was within it. 
+
+Project Neith aspires to be an easily extensible dashboard which allows for the monitoring and control of virtually any remotely accessible technology. It's primary target for its initial release is to hook in to common infrastructure and security tooling which exists in most enterprises. These include systems such as Active Directory, VMware, antivirus, backup, endpoints, and more. 
+
+Project Neith has a simple workflow where integrations are selected from a list of available modules, once activated they create the appropriate database tables and scheduled tasks to retreive data if required, the pages associated with each integration are then added to the website navigation menus. Additionally, because of it's highly modular design, it is often a matter of tweaking a single file or two in order to add new visualizations, or change how the various pages look.
+
+*THIS PROJECT IS STILL IN AN ALPHA STATE AND SHOULLD NOT BE USED IN PRODUCTION ENVIRONMENTS.*
 
 # Technologies
 * Universal Dashboard
-Universal Dashboard is a module made by Adam Driscoll which allows for the easy creation of webpages using PowerShell. The technology defines simple powershell functions which represent ASP.NET Core, .NET Core, and React objects. 
+Universal Dashboard is a module made by Adam Driscoll which allows for the easy creation of webpages using PowerShell. More information can be found [here](https://universaldashboard.io "Universal Dashboard"), I highly recommend checking out this awesome project!
 
-More information can be found below, I highly recommend exploring and supporting this awesome technology! 
+* SQL Server Express (Postgres and others to come later!)
+SQL Server Express is used to store the results of the various integrations and data-pulls performed from the different integrations. Some integrations require no use of the database but many do.
 
-https://universaldashboard.io/ 
 
 # Prerequisites
 Required
