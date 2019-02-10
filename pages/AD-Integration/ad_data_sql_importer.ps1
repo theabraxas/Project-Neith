@@ -22,7 +22,10 @@ Set-Location SQLSERVER:\SQL\$computername\DEFAULT\databases\$dbname
 #Update Summary Data Table
 Invoke-Sqlcmd -Query "INSERT INTO ad_summary (date, success, total_users ,total_users_enabled ,total_groups ,total_computers ,total_enabled_computers, forest_functional_level) 
 VALUES('$QueryDate','$Success','$TotalUsers','$EnabledUsers','$TotalGroups','$TotalComputers','$EnabledComputers','$ForestFunctionalLevel')"
-$os_columns= Invoke-Sqlcmd -Query "Select * from INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'ad_summary'"
+
+#Update AD OS Summary Table
+$os_columns= Invoke-Sqlcmd -Query "Select * from INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'ad_os_summary'"
+Invoke-Sqlcmd -Query "INSERT INTO ad_os_summary (date) Values ('$QueryDate')"
 Foreach ($OS in $OSData) { 
     $osname = $os.name
     $oscount = $os.count
@@ -30,10 +33,10 @@ Foreach ($OS in $OSData) {
         $oscount = 0
     }
     If ($OS.Name -inotin $os_columns.column_name) {
-        Invoke-Sqlcmd -Query "ALTER TABLE ad_summary ADD ""$osname"" int;"
+        Invoke-Sqlcmd -Query "ALTER TABLE ad_os_summary ADD ""$osname"" int;"
         }
-    Write-Host "UPDATE ad_summary SET ""$osname""=$oscount WHERE date = (select max(date) from ad_summary)"
-    Invoke-Sqlcmd -Query "UPDATE ad_summary SET ""$osname""=$oscount WHERE date = (select max(date) from ad_summary)"
+    Write-Host "UPDATE ad_os_summary SET ""$osname""=$oscount WHERE date = (select max(date) from ad_os_summary)"
+    Invoke-Sqlcmd -Query "UPDATE ad_os_summary SET ""$osname""=$oscount WHERE date = (select max(date) from ad_os_summary)"
 }
 
 #Update Computer Date Table
