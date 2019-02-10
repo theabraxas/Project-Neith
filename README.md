@@ -1,6 +1,7 @@
 # Project Neith
 *THIS PROJECT IS STILL IN AN ALPHA STATE AND SHOULLD NOT BE USED IN PRODUCTION ENVIRONMENTS.*
-This project is named after an early Egyptian deity who was said to be the first god and creator of the universe. It is also said she controlled and knew all that was within it. 
+
+Neith was an early Egyptian deity said to be the first god and creator of the universe. It is also said she controlled and knew all that was within it. The scope of this dashboard is to give visibility and control to any desired remotely connectable systems.
 
 Project Neith aspires to be an easily extensible dashboard which allows for the monitoring and control of virtually any remotely accessible technology. It's primary target for its initial release is to hook in to common infrastructure and security tooling which exists in most enterprises. These include systems such as Active Directory, VMware, antivirus, backup, endpoints, and more. 
 
