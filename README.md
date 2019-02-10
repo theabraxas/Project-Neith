@@ -44,27 +44,35 @@ Run the `./dbconfig.ps1` script
 
 # Some Screenshots
 Menu with a few integrations enabled:
+
 ![Menu based on enabled integrations](https://raw.githubusercontent.com/theabraxas/project-neith/master/images/menu.png)
 
 Integration selection menu:
+
 ![List of available integrations, leads to config page](https://raw.githubusercontent.com/theabraxas/project-neith/master/images/templates.png)
 
 AD Summary Information Page:
+
 ![High level information plus the ability to investigate users and computers](https://raw.githubusercontent.com/theabraxas/project-neith/master/images/AD_Summary.png)
 
 AD Computer Information:
+
 ![Result of connecting to a computer from the previous image](https://raw.githubusercontent.com/theabraxas/project-neith/master/images/AD_Computer_Data.png)
 
 AD Computer Live Information:
+
 ![Live Data view from the previous image](https://raw.githubusercontent.com/theabraxas/project-neith/master/images/AD_Computer_Detail_Data.png)
 
 AD User Summary Page:
+
 ![User Info](https://raw.githubusercontent.com/theabraxas/project-neith/master/images/AD_User_Summary.png)
 
 Cylance Information:
+
 ![User Info](https://raw.githubusercontent.com/theabraxas/project-neith/master/images/Cylance_Overview.png)
 
 VMware Information:
+
 ![User Info](https://raw.githubusercontent.com/theabraxas/project-neith/master/images/VMware_Overview.png)
 
 # Architecture and Function
