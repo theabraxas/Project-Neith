@@ -96,4 +96,3 @@ Foreach ($Group in $GroupData) {
         Invoke-Sqlcmd -Query "INSERT INTO ad_groups(objectsid,samaccountname,member_count) VALUES ('$objectsid','$samaccountname','$member_count')"
     }
 }
-
