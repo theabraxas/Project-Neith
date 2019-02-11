@@ -100,7 +100,8 @@ $ComputerPage = New-UDPage -Url "/computer/main/:ComputerName" -Endpoint {
             'Total Disk Space (C:)' = (Get-CimInstance -ComputerName $ComputerName -ClassName Win32_LogicalDisk -Filter "DeviceID='C:'").Size / 1GB | ForEach-Object { "$([Math]::Round($_, 2)) GBs " }
             'Free Disk Space (C:)' = (Get-CimInstance -ComputerName $ComputerName -ClassName Win32_LogicalDisk -Filter "DeviceID='C:'").FreeSpace / 1GB | ForEach-Object { "$([Math]::Round($_, 2)) GBs " }
             'Last Boot Time' = ($uptime)
-            'View Live Data' = (New-UDLink -Text "Click Here" -Url "/computer/live/$ComputerName")
+            'View Live Data' = New-UDButton -Text "More Info" -OnClick {
+                Invoke-UDRedirect -Url "/computer/live/$ComputerName"}
             'Last Patch Date' = ($lastpatch)
             'lastboot' = ($lastboot)
             'LAPS PW' = ($pw) 
@@ -117,8 +118,14 @@ $ComputerPage = New-UDPage -Url "/computer/main/:ComputerName" -Endpoint {
                     )
             }
 
-        New-UdGrid -Title "Services" -Headers @("Name", "Status") -Properties @("DisplayName", "Status") -AutoRefresh -RefreshInterval 60 -Endpoint { 
-            Get-Service -ComputerName $ComputerName |select-object DisplayName,Status | Out-UDGridData
+        New-UdGrid -Title "Services" -Headers @("DisplayName", "Status") -Properties @("DisplayName", "Status") -AutoRefresh -RefreshInterval 60 -Endpoint { 
+            $Services = Get-Service -ComputerName $ComputerName 
+            $Services | Foreach-Object {
+                [PSCustomObject]@{
+                    DisplayName = $_.DisplayName.ToString().Trim()
+                    Status = $_.Status.ToString()
+                }
+            } | Out-UDGridData
         }
         New-UdGrid -Title "Processes" -Headers @("Name", "ID", "Working Set", "CPU") -Properties @("Name", "Id", "WorkingSet", "CPU") -AutoRefresh -RefreshInterval 60 -Endpoint { 
             Invoke-Command -ComputerName $ComputerName -ScriptBlock {Get-Process} | Out-UDGridData
