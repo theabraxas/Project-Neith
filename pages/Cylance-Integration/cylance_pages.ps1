@@ -53,7 +53,7 @@ If ($CylanceActive.active -eq "yes") {
     }
 }
 
-$CylanceComputerPage = New-UDPage -Url "/cylance/computer/:$CompName" -Endpoint {
+$CylanceComputerPage = New-UDPage -Url "/cylance/computer/:CompName" -Endpoint {
     param($CompName)
     New-UDLayout -Columns 3 -Content {
         New-UdTable -Title "$CompName Agent Information" -Headers @(" ", " ") -Endpoint {
