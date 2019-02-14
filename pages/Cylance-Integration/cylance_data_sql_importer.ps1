@@ -25,6 +25,8 @@ ForEach ($Device in $DevicesData) {
     $AgentV = $Device.'Agent Version'
     $DP = $Device.policy
     $DZ = $Device.zones
+    If ($DZ -like "") {
+        $DZ = "None"}
     $MACs = $Device.'Mac Addresses'
     $IPs = $Device.'IP Addresses'
     $LRU = $Device.'Last Reported User'

@@ -53,10 +53,10 @@ If ($CylanceActive.active -eq "yes") {
     }
 }
 
-$CylanceComputerPage = New-UDPage -Url "/cylance/computer/:$ComputerName" -Endpoint {
-    param($ComputerName)
+$CylanceComputerPage = New-UDPage -Url "/cylance/computer/:$CompName" -Endpoint {
+    param($CompName)
     New-UDLayout -Columns 3 -Content {
-        New-UdTable -Title "$ComputerName Agent Information" -Headers @(" ", " ") -Endpoint {
+        New-UdTable -Title "$CompName Agent Information" -Headers @(" ", " ") -Endpoint {
         @{
             'Operating System' = ($AgentData.os_version)
             'Cylance Policy' = ($AgentData.Policy)
