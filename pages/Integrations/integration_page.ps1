@@ -28,7 +28,6 @@ $VMwareCard =  New-UDInput -Title "VMWare Info" -Content {
                 New-UDInputField -type textbox -Name ClusterName -Placeholder "vCenterName"
     } -Endpoint {
             param($UserName,$Password,$ClusterName)
-            Import-Module VMware.VimAutomation.Core
             $TemplateType = "VMware"
             $Varname = "VMwarePage"
             New-UDInputAction -Content @(

@@ -3,6 +3,8 @@
 #Set-PowerCLIConfiguration -InvalidCertificateAction Ignore
 #$vcname = ""
 #$vconn = connect-viserver rbvcenter2.nthgen.nth.com -Credential $cred
+
+Import-Module VMware.VimAutomation.Core
 $data = Invoke-Sqlcmd -Query "SELECT * FROM template_configs WHERE template_name='VMware'"
 
 $vCenter = $data.clustername
