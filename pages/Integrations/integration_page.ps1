@@ -1,7 +1,7 @@
 ﻿$ADCard =  New-UDInput -Title "AD Info" -Content {
                 New-UDInputField -type textbox -Name DomainName -Placeholder "Domain Name"
                 New-UDInputField -type textbox -Name Username -Placeholder "Username"
-                New-UDInputField -type textbox -Name Password -Placeholder "Password"
+                New-UDInputField -type password -Name Password -Placeholder "Password"
     } -Endpoint {
             param($DomainName,$Username,$Password)
             $TemplateType = "AD"
@@ -24,7 +24,7 @@ $CylanceCard =  New-UDInput -Title "Cylance Info" -Content {
 
 $VMwareCard =  New-UDInput -Title "VMWare Info" -Content {
                 New-UDInputField -type textbox -Name UserName -Placeholder "Username"
-                New-UDInputField -type textbox  -Name Password -Placeholder "Password"
+                New-UDInputField -type password  -Name Password -Placeholder "Password"
                 New-UDInputField -type textbox -Name ClusterName -Placeholder "vCenterName"
     } -Endpoint {
             param($UserName,$Password,$ClusterName)
