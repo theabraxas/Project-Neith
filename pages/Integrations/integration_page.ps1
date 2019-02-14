@@ -24,15 +24,21 @@ $CylanceCard =  New-UDInput -Title "Cylance Info" -Content {
 
 $VMwareCard =  New-UDInput -Title "VMWare Info" -Content {
                 New-UDInputField -type textbox -Name UserName -Placeholder "Username"
-                New-UDInputField -type textbox -Name Password -Placeholder "Password"
+                New-UDInputField -type textbox  -Name Password -Placeholder "Password"
                 New-UDInputField -type textbox -Name ClusterName -Placeholder "vCenterName"
     } -Endpoint {
             param($UserName,$Password,$ClusterName)
+            Import-Module VMware.VimAutomation.Core
             $TemplateType = "VMware"
             $Varname = "VMwarePage"
             New-UDInputAction -Content @(
-                Invoke-Sqlcmd -ServerInstance 'localhost' -Database 'ultimateDashboard' -Query "update template_configs set active = 'yes', username = '$Username', variablename = '$Varname', password = '$Password', clustername = '$vCenterName' where template_name = '$TemplateType'"
-                New-UDCard -Title "New Pages Generated" -Text "$UserName, $Password, $vCenterName"
+                ##The next 4 lines would be a good way to do this, can't find out how to decrypt the pw from the db later though.
+                #$Placeholder = New-VICredentialStoreItem -Host $ClusterName -User $UserName -Password $Password -File $location\temp.xml
+                #$connection_data =  [xml] (Get-Content $location\temp.xml)
+                #$Password = $connection_data.viCredentials.passwordEntry.password
+                #Remove-Item $location\temp.xml
+                Invoke-Sqlcmd -ServerInstance 'localhost' -Database 'ultimateDashboard' -Query "update template_configs set active = 'yes', username = '$Username', variablename = '$Varname', password = '$Password', clustername = '$ClusterName' where template_name = '$TemplateType'"
+                New-UDCard -Title "New Pages Generated" -Text "$UserName, $Password, $ClusterName"
      )}
 
 $Integrations= @{AD=@('integration for active directory domain');Cylance=@('integration for cylance tenant');VMWare=@('Integration for VMware technology.')} #Select integration_names from integrations

@@ -1,9 +1,15 @@
 ﻿#VMware SQL Data Importer
- #$cred = Get-Credential
- #Set-PowerCLIConfiguration -InvalidCertificateAction Ignore
- #$vcname = ""
- #$vconn = connect-viserver rbvcenter2.nthgen.nth.com -Credential $cred
+#$cred = Get-Credential
+#Set-PowerCLIConfiguration -InvalidCertificateAction Ignore
+#$vcname = ""
+#$vconn = connect-viserver rbvcenter2.nthgen.nth.com -Credential $cred
+$data = Invoke-Sqlcmd -Query "SELECT * FROM template_configs WHERE template_name='VMware'"
 
+$vCenter = $data.clustername
+$User = $data.username
+$Password = $data.password
+
+$vconn =  Connect-VIServer $vCenter -User $User -Password $Password
 
 $HostInfo = Get-VMHost #get-vmhostfirmware, get-vmhosthardware
 $numHosts = $HostInfo.count
