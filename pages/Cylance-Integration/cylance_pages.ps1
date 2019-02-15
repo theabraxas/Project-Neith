@@ -53,7 +53,7 @@ If ($CylanceActive.active -eq "yes") {
     }
 }
 
-$CylanceComputerPage = New-UDPage -Url "/cylance/computer/:$CompName" -Endpoint {
+$CylanceComputerPage = New-UDPage -Url "/cylance/computer/:CompName" -Endpoint {
     param($CompName)
     New-UDLayout -Columns 3 -Content {
         New-UdTable -Title "$CompName Agent Information" -Headers @(" ", " ") -Endpoint {
@@ -77,8 +77,8 @@ $CylanceComputerPage = New-UDPage -Url "/cylance/computer/:$CompName" -Endpoint 
 $CylancePage = New-UDPage -Name "Cylance" -Icon unlock -Endpoint {
     New-UDLayout -Columns 3 -Content {
         New-UDInput -Title "Enter Computer Name: " -Endpoint {
-            param($ComputerName)
-            New-UDInputAction -RedirectUrl "/cylance/computer/$ComputerName"
+            param($Compname)
+            New-UDInputAction -RedirectUrl "/cylance/computer/$CompName"
             }
         New-UDChart -Title "Devices by Zone" -Type HorizontalBar -Endpoint {
             $DevicesByZone | Out-UDChartData -DataProperty Count -LabelProperty Name -BackgroundColor @("#75cac3","#2a6171","#f3d516","#4b989e","#86df4a","#b816f3","#f31651","#4e4b9e") -BorderColor 'black' -HoverBackgroundColor '#FF9F0D'

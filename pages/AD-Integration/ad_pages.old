@@ -48,7 +48,8 @@ $UserInfoPage = New-UDPage -Url "/user/:UserName" -Endpoint {
     }
 }
 
-$UserOverview = New-UDRow -Columns {
+$UserOverviewPage = New-UDPage -Icon address_book -Name "User Overview"  -Content {
+    New-UDRow -Columns {
         New-UDColumn -Size 4 {
             New-UDCard -Title "UserOverview" -Text "This is a page to view user information"
             }
@@ -80,8 +81,9 @@ $UserOverview = New-UDRow -Columns {
                     "Value" = $DisabledUserCount}
                     )
                 $EnabledDisabledChart | Out-UDChartData -DataProperty "value" -LabelProperty "Type" -BackgroundColor @("green","red")
-        }
-    }       
+            }
+        }        
+    }
 }
 
 $ComputerPage = New-UDPage -Url "/computer/main/:ComputerName" -Endpoint {
@@ -173,28 +175,9 @@ $ComputerLivePage = New-UDPage -Url "/computer/live/:ComputerName" -Endpoint {
     }
 }
 
-$PageSelector = New-UDLayout -Columns 4 -Content {
-    New-UDCard -Content {
-        New-UDButton -Text "AD Summary" -OnClick {
-            Set-UDElement -Id page -Content { $ADSummary }
-        }
-    }
-    New-UDCard -Content {
-        New-UDButton -Text "User Overview" -OnClick {
-            Set-UDElement -Id page -Content { $UserOverview }
-        }
-    }
-    New-UDCard -Content {
-        New-UDButton -Text "AD Health (Coming Soon!)"
-        }
-    New-UDCard -Content {
-        New-UDButton -Text "AD Management (Coming Soon!)"
-        }
-    }
-
-$ADSummary = New-UDLayout -Columns 1 -Content {
+$ADSummaryPage = New-UDPage -Name "ADSummary" -Icon signal -Content {
     New-UDLayout -Columns 3 -Content {
-    #AD User Unlock
+    	#AD User Unlock
         New-UDInput -Title "Unlock User" -Endpoint {
             param($UserName)
             Unlock-ADAccount $UserName
@@ -218,8 +201,8 @@ $ADSummary = New-UDLayout -Columns 1 -Content {
             New-UDInputAction -RedirectUrl "/user/$UserName"
         }
     }
-    New-UDColumn -Size 12 {
-        New-UDTable -Title "AD Data" -Headers @("total_users", "total_users_enabled", "total_computers", "total_enabled_computers", "total_groups", "forest_functional_level") -Endpoint {
+    New-UDLayout -Columns 1 -Content {
+         New-UDTable -Title "AD Data" -Headers @("total_users", "total_users_enabled", "total_computers", "total_enabled_computers", "total_groups", "forest_functional_level") -Endpoint {
             $ADData.GetEnumerator() | Out-UDTableData -Property @("total_users", "total_users_enabled", "total_computers", "total_enabled_computers", "total_groups", "forest_functional_level")
         }
         New-UDChart -Title "AD Features Over Time" -Height 600px -Width 100% -Type Line -Endpoint {
@@ -232,16 +215,6 @@ $ADSummary = New-UDLayout -Columns 1 -Content {
             }
         }
     }
-    
-
-$ADDataPage = New-UDPage -Name "ADSummary" -Icon signal -Content {
-    $PageSelector
-    New-UDRow
-    New-UDElement -tag div -id page -Content {
-        $ADSummary
-    }
-}
 
 
-
-$ADPage = @($ADDataPage, $UserInfoPage, $ComputerPage, $ComputerLivePage)
+$ADPage = @($ADSummaryPage, $UserInfoPage, $UserOverviewPage, $ComputerPage, $ComputerLivePage)
