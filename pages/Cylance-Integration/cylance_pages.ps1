@@ -3,8 +3,8 @@
 $CylanceActive = Invoke-SqlCmd -Query "SELECT active FROM template_configs WHERE template_name = 'Cylance'"
 $Query = "SELECT * FROM cylance_threat_data WHERE device_name = '$ComputerName'"
 $DetectionData = Invoke-Sqlcmd -Query $Query
-$Query = "SELECT * FROM cylance_device_data WHERE device_name = '$ComputerName'"
-$AgentData = Invoke-Sqlcmd -Query $Query
+#$Query = "SELECT * FROM cylance_device_data WHERE device_name = 'somecomputer'"
+#$AgentData = Invoke-Sqlcmd -Query $Query
 $Threattypes = @()
 
 Foreach ($Threat in $DetectionData) {
@@ -53,8 +53,12 @@ If ($CylanceActive.active -eq "yes") {
     }
 }
 
-$CylanceComputerPage = New-UDPage -Url "/cylance/computer/:CompName" -Endpoint {
+$CylanceComputerPage = New-UDPage -Url "/dynamic/cylance/computer/:CompName" -Endpoint {
     param($CompName)
+    $query = "SELECT * FROM cylance_device_data WHERE device_name = '$CompName'"
+    $AgentData = Invoke-Sqlcmd -Query $Query -ServerInstance $SQLInstance -Database $dbname
+    sleep(1)
+    #$agentdata = Invoke-Sqlcmd -Query "SELECT * FROM cylance_device_data WHERE device_name = '$CompName'"
     New-UDLayout -Columns 3 -Content {
         New-UdTable -Title "$CompName Agent Information" -Headers @(" ", " ") -Endpoint {
         @{
@@ -78,7 +82,7 @@ $CylancePage = New-UDPage -Name "Cylance" -Icon unlock -Endpoint {
     New-UDLayout -Columns 3 -Content {
         New-UDInput -Title "Enter Computer Name: " -Endpoint {
             param($Compname)
-            New-UDInputAction -RedirectUrl "/cylance/computer/$CompName"
+            New-UDInputAction -RedirectUrl "/dynamic/cylance/computer/$CompName"
             }
         New-UDChart -Title "Devices by Zone" -Type HorizontalBar -Endpoint {
             $DevicesByZone | Out-UDChartData -DataProperty Count -LabelProperty Name -BackgroundColor @("#75cac3","#2a6171","#f3d516","#4b989e","#86df4a","#b816f3","#f31651","#4e4b9e") -BorderColor 'black' -HoverBackgroundColor '#FF9F0D'

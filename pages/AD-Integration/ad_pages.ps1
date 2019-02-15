@@ -173,25 +173,6 @@ $ComputerLivePage = New-UDPage -Url "/computer/live/:ComputerName" -Endpoint {
     }
 }
 
-$PageSelector = New-UDLayout -Columns 4 -Content {
-    New-UDCard -Content {
-        New-UDButton -Text "AD Summary" -OnClick {
-            Set-UDElement -Id page -Content { $ADSummary }
-        }
-    }
-    New-UDCard -Content {
-        New-UDButton -Text "User Overview" -OnClick {
-            Set-UDElement -Id page -Content { $UserOverview }
-        }
-    }
-    New-UDCard -Content {
-        New-UDButton -Text "AD Health (Coming Soon!)"
-        }
-    New-UDCard -Content {
-        New-UDButton -Text "AD Management (Coming Soon!)"
-        }
-    }
-
 $ADSummary = New-UDLayout -Columns 1 -Content {
     New-UDLayout -Columns 3 -Content {
     #AD User Unlock
@@ -228,11 +209,32 @@ $ADSummary = New-UDLayout -Columns 1 -Content {
                 New-UDChartDataset -DataProperty "EnabledUsers" -Label "EnabledUsers" -BackgroundColor "#800FF22F" -HoverBackgroundColor "#800FF22F"
                 New-UDChartDataset -DataProperty "Computers" -Label "Computers" -BackgroundColor "#8014558C" -HoverBackgroundColor "#8014558C"
                 New-UDChartDataset -DataProperty "EnabledComputers" -Label "EnabledComputers" -BackgroundColor "#803AE8CE" -HoverBackgroundColor "#803AE8CE"
-                )
-            }
+            )
         }
     }
+}
     
+
+$PageSelector = New-UDLayout -Columns 4 -Content {
+    New-UDCard -Content {
+        New-UDButton -Text "AD Summary" -OnClick {
+            Set-UDElement -Id page -Content { $ADSummary }
+        }
+    }
+    New-UDCard -Content {
+        New-UDButton -Text "User Overview" -OnClick {
+            Set-UDElement -Id page -Content { $UserOverview }
+        }
+    }
+    New-UDCard -Content {
+        New-UDButton -Text "AD Health (Coming Soon!)"
+    }
+    New-UDCard -Content {
+        New-UDButton -Text "AD Management (Coming Soon!)"
+    }
+}
+
+
 
 $ADDataPage = New-UDPage -Name "ADSummary" -Icon signal -Content {
     $PageSelector
