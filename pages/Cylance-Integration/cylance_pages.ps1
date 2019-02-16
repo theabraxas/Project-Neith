@@ -77,7 +77,7 @@ $CylanceComputerPage = New-UDPage -Url "/dynamic/cylance/computer/:CompName" -En
             $EventsData | ForEach-Object {
                 [PSCustomObject]@{
                     date = $_.date
-                    file_path = $_.file_path
+                    file_path = $_.file_path.Replace('\',' \')
                     event_status = $_.event_status.ToString()
                     cylance_score = $_.cylance_score.ToString()
                     classification = $_.classification.ToString()
