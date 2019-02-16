@@ -16,6 +16,8 @@ $DomainName = $DomainData.forest
 $Success = 1
 $UsersNoPwdExpire = ($userdata | where-object -Property "PasswordNeverExpires" -eq "True").count
 $OSData = $ComputerData | Where-Object -Property "Enabled" -eq "True" | Group-Object OperatingSystem -NoElement
+$PrivilegedGroups = @("Domain Admins","Enterprise Admins","Administrators","Server Operators","Server Management")
+
 
 Set-Location SQLSERVER:\SQL\$computername\DEFAULT\databases\$dbname 
 
@@ -99,3 +101,5 @@ Foreach ($Group in $GroupData) {
         Invoke-Sqlcmd -Query "INSERT INTO ad_groups(objectsid,samaccountname,member_count) VALUES ('$objectsid','$samaccountname','$member_count')"
     }
 }
+
+#Update AD Privileged Groups Table

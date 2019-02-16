@@ -1,10 +1,6 @@
 ﻿Set-Location SQLSERVER:\SQL\$computername\DEFAULT\databases\$dbname 
 
 $CylanceActive = Invoke-SqlCmd -Query "SELECT active FROM template_configs WHERE template_name = 'Cylance'"
-$Query = "SELECT * FROM cylance_threat_data WHERE device_name = '$ComputerName'"
-$DetectionData = Invoke-Sqlcmd -Query $Query
-#$Query = "SELECT * FROM cylance_device_data WHERE device_name = 'somecomputer'"
-#$AgentData = Invoke-Sqlcmd -Query $Query
 $Threattypes = @()
 
 Foreach ($Threat in $DetectionData) {
@@ -57,10 +53,11 @@ $CylanceComputerPage = New-UDPage -Url "/dynamic/cylance/computer/:CompName" -En
     param($CompName)
     $query = "SELECT * FROM cylance_device_data WHERE device_name = '$CompName'"
     $AgentData = Invoke-Sqlcmd -Query $Query -ServerInstance $SQLInstance -Database $dbname
-    sleep(1)
-    #$agentdata = Invoke-Sqlcmd -Query "SELECT * FROM cylance_device_data WHERE device_name = '$CompName'"
-    New-UDLayout -Columns 3 -Content {
-        New-UdTable -Title "$CompName Agent Information" -Headers @(" ", " ") -Endpoint {
+    $query = "SELECT * FROM cylance_event_data WHERE device_name = '$CompName'"
+    $EventsData = Invoke-Sqlcmd -Query $Query -ServerInstance $SQLInstance -Database $dbname
+    New-UDRow -Columns {
+        New-UDColumn -Size 4 {
+            New-UdTable -Title "$CompName Agent Information" -Headers @(" ", " ") -Endpoint {
         @{
             'Operating System' = ($AgentData.os_version)
             'Cylance Policy' = ($AgentData.Policy)
@@ -73,7 +70,23 @@ $CylanceComputerPage = New-UDPage -Url "/dynamic/cylance/computer/:CompName" -En
             'IP Address' = ($AgentData.ip_addresses)
             'MAC Addresses' = ($AgentData.mac_addresses)
             }.GetEnumerator() | Out-UDTableData -Property @("Name", "Value")
-        }
+        }    }
+        New-UDColumn -Size 8 {
+            New-UDGrid -Title "$compname event data" -Headers @('date','file_path','event_status','cylance_score','classification','detected_by','running','ever_run') `
+        -Properties @('date','file_path','event_status','cylance_score','classification','detected_by','running','ever_run') -Endpoint {
+            $EventsData | ForEach-Object {
+                [PSCustomObject]@{
+                    date = $_.date
+                    file_path = $_.file_path
+                    event_status = $_.event_status.ToString()
+                    cylance_score = $_.cylance_score.ToString()
+                    classification = $_.classification.ToString()
+                    detected_by = $_.detected_by.ToString()
+                    running = $_.running.ToString()
+                    ever_run = $_.ever_run.ToString()
+                }
+            } | Out-UDGridData
+        }}
     }
 }
 
@@ -84,6 +97,12 @@ $CylancePage = New-UDPage -Name "Cylance" -Icon unlock -Endpoint {
             param($Compname)
             New-UDInputAction -RedirectUrl "/dynamic/cylance/computer/$CompName"
             }
+        New-UDCounter -Title "Cylance Computers" -Endpoint {
+            $CylanceComputerCount
+            }
+        New-UDCounter -Title "Cylance Memory Protection Events (Past 7 Days)" -Endpoint {
+            $RecentMemoryProtectHits
+        }
         New-UDChart -Title "Devices by Zone" -Type HorizontalBar -Endpoint {
             $DevicesByZone | Out-UDChartData -DataProperty Count -LabelProperty Name -BackgroundColor @("#75cac3","#2a6171","#f3d516","#4b989e","#86df4a","#b816f3","#f31651","#4e4b9e") -BorderColor 'black' -HoverBackgroundColor '#FF9F0D'
             }
@@ -102,12 +121,6 @@ $CylancePage = New-UDPage -Name "Cylance" -Icon unlock -Endpoint {
         New-UDChart -Title "Cleared Threats by Type" -Type Doughnut -Endpoint {
             $ClearedThreatsByType | Out-UDChartData -DataProperty Count -Label Name -BackgroundColor @("#75cac3","#2a6171","#f3d516","#4b989e","#86df4a","#b816f3","#f31651","#4e4b9e","#1F1F1F","#777777","#FFFFFF") -BorderColor 'black' -HoverBackgroundColor '#FF9F0D'
             }
-        New-UDCounter -Title "Cylance Computers" -Endpoint {
-            $CylanceComputerCount
-            }
-        New-UDCounter -Title "Cylance Memory Protection Events (Past 7 Days)" -Endpoint {
-            $RecentMemoryProtectHits
-        }
     }
 }
 

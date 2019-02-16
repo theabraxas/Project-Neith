@@ -48,42 +48,6 @@ $UserInfoPage = New-UDPage -Url "/user/:UserName" -Endpoint {
     }
 }
 
-$UserOverview = New-UDRow -Columns {
-        New-UDColumn -Size 4 {
-            New-UDCard -Title "UserOverview" -Text "This is a page to view user information"
-            }
-        New-UDColumn -Size 4 -Endpoint {
-            New-UdTable -Title "User Information" -Headers @(" ", " ") -Endpoint {
-                $EnabledUsers = ($ADUsers | Where-Object -Property Enabled -eq -Value $True)
-                $PWExpired = 0
-                Foreach ($User in $EnabledUsers) {
-                    $pwdlastset = $User.password_last_set
-                    $threshold = ((Get-Date).Ticks - $Ticks_90days)
-                    If ($pwdlastset -lt $threshold) {$PWExpired +=1 }
-                }
-            @{
-                "User Count" = ($UserCount)
-                "Enabled Users" = ($EnabledUserCount)
-                "Disabled Users" = ($DisabledUserCount)
-                "Locked Out Users" = ($LockedOutUserCount)  
-                "Users with email" = ($UsersWithEmail)   
-                "Users with expired pws" = ($PWExpired)   
-                }.GetEnumerator() | Out-UDTableData -Property @("Name", "Value")
-            }
-        }
-        New-UDColumn -Size 4 -Endpoint {
-            New-UDChart -Type Doughnut -Endpoint {
-                $EnabledDisabledChart = @(
-                    @{"type" = "enabled"
-                    "Value" = $EnabledUserCount}
-                    @{"type" = "Disabled"
-                    "Value" = $DisabledUserCount}
-                    )
-                $EnabledDisabledChart | Out-UDChartData -DataProperty "value" -LabelProperty "Type" -BackgroundColor @("green","red")
-        }
-    }       
-}
-
 $ComputerPage = New-UDPage -Url "/computer/main/:ComputerName" -Endpoint {
     param($ComputerName)
     $pw = (Get-ADComputer $ComputerName -Properties ms-MCS-AdmPwd | Select -ExpandProperty ms-MCS-AdmPwd) ##Replace 'ms-MCS-AdmPwd' with your LAPS ADSI property name.
@@ -213,28 +177,55 @@ $ADSummary = New-UDLayout -Columns 1 -Content {
         }
     }
 }
-    
 
-$PageSelector = New-UDLayout -Columns 4 -Content {
-    New-UDCard -Content {
-        New-UDButton -Text "AD Summary" -OnClick {
-            Set-UDElement -Id page -Content { $ADSummary }
+$UserOverview = New-UDRow -Columns {
+        New-UDColumn -Size 4 {
+            New-UDCard -Title "UserOverview" -Text "This is a page to view user information"
+            }
+        New-UDColumn -Size 4 -Endpoint {
+            New-UdTable -Title "User Information" -Headers @(" ", " ") -Endpoint {
+                $EnabledUsers = ($ADUsers | Where-Object -Property Enabled -eq -Value $True)
+                $PWExpired = 0
+                Foreach ($User in $EnabledUsers) {
+                    $pwdlastset = $User.password_last_set
+                    $threshold = ((Get-Date).Ticks - $Ticks_90days)
+                    If ($pwdlastset -lt $threshold) {$PWExpired +=1 }
+                }
+            @{
+                "User Count" = ($UserCount)
+                "Enabled Users" = ($EnabledUserCount)
+                "Disabled Users" = ($DisabledUserCount)
+                "Locked Out Users" = ($LockedOutUserCount)  
+                "Users with email" = ($UsersWithEmail)   
+                "Users with expired pws" = ($PWExpired)   
+                }.GetEnumerator() | Out-UDTableData -Property @("Name", "Value")
+            }
         }
-    }
-    New-UDCard -Content {
+        New-UDColumn -Size 4 -Endpoint {
+            New-UDChart -Type Doughnut -Endpoint {
+                $EnabledDisabledChart = @(
+                    @{"type" = "enabled"
+                    "Value" = $EnabledUserCount}
+                    @{"type" = "Disabled"
+                    "Value" = $DisabledUserCount}
+                    )
+                $EnabledDisabledChart | Out-UDChartData -DataProperty "value" -LabelProperty "Type" -BackgroundColor @("green","red")
+        }
+    }       
+}
+
+$PageSelector = New-UDElement -Tag div -Attributes @{
+    style = @{display = 'flex'; flexdirection = 'row'; width = '200%';}
+    } -Content {
+        New-UDButton -Text "AD Summary" -OnClick {
+           Set-UDElement -Id page -Content { $ADSummary }
+        }
         New-UDButton -Text "User Overview" -OnClick {
             Set-UDElement -Id page -Content { $UserOverview }
         }
-    }
-    New-UDCard -Content {
         New-UDButton -Text "AD Health (Coming Soon!)"
-    }
-    New-UDCard -Content {
         New-UDButton -Text "AD Management (Coming Soon!)"
     }
-}
-
-
 
 $ADDataPage = New-UDPage -Name "ADSummary" -Icon signal -Content {
     $PageSelector
@@ -243,7 +234,5 @@ $ADDataPage = New-UDPage -Name "ADSummary" -Icon signal -Content {
         $ADSummary
     }
 }
-
-
 
 $ADPage = @($ADDataPage, $UserInfoPage, $ComputerPage, $ComputerLivePage)
