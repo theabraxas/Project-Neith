@@ -8,6 +8,7 @@ $Mem_Percent = ($VMWareSummaryData.mem_usagegb / $VMWareSummaryData.mem_totalgb)
 $VMWareSummaryPage = New-UDPage -Name "VMWare" -Icon desktop -Endpoint {
     New-UDLayout -Columns 3 -Content {
         New-UdTable -Title "VMware Information" -Headers @("name", "value") -Endpoint {
+            $NoHyperThread = Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $dbname -Query "SELECT hyper_threading FROM vmware_hosts WHERE hyper_threading = 'False'"
         ([ordered]@{
             'Number of Hosts' = $VMWareSummaryData.num_hosts
             'Number of VMs' = $VMWareSummaryData.num_vms
@@ -18,15 +19,16 @@ $VMWareSummaryPage = New-UDPage -Name "VMWare" -Icon desktop -Endpoint {
             'CPU Total' = $VMWareSummaryData.cpu_total
             'CPU Usage' = $VMWareSummaryData.cpu_usage
             'CPU Percentage' = [Math]::Round($CPU_Percent,2)
+            'Hosts without Hyperthreading' = $NoHyperThread.ItemArray.Count.ToString()
             }).GetEnumerator() | Out-UDTableData -Property @("name","value")
         }
         New-UDInput -Title "Enter Computer Name: " -Endpoint {
-            param($ComputerName)
-            New-UDInputAction -RedirectUrl "/computer/main/$ComputerName"
+            param($VMName)
+            New-UDInputAction -RedirectUrl "/vm/$VMName"
         }
-        New-UDInput -Title "Enter Host Name"  -Endpoint {
-            param($ComputerName)
-            New-UDInputAction -RedirectUrl "/computer/main/$ComputerName"
+        New-UDInput -Title "Enter Host Name: "  -Endpoint {
+            param($VMhost)
+            New-UDInputAction -RedirectUrl "/vmhost/$VMhost"
         }
     }
     New-UDLayout -Columns 2 -Content {
@@ -51,4 +53,62 @@ $VMWareSummaryPage = New-UDPage -Name "VMWare" -Icon desktop -Endpoint {
     }
 }
 
-$VMwarePage = @($VMWareSummaryPage)
+$VMpage = New-UDPage -Url "/vm/:VMName" -Endpoint {
+    #Dynamic page which provides an overview of the VM.
+    param($VMname)
+    $VMs = Invoke-SqlCmd -ServerInstance $SQLInstance -Database $DBname -Query "SELECT host_name FROM vmware_guests" 
+    New-UDRow -Columns {
+        New-UDColumn -Size 4 {
+                New-UDCard -Title "$VMname Information (Not Live, from DB)" -Endpoint {
+                    $Query = "SELECT * FROM vmware_guests WHERE host_name = '$VMname'"
+                    $VMdata = Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $DBname -Query $Query
+                    New-UDTable -Headers @(" "," ") -Endpoint {
+                        ([ordered]@{
+                        power = $VMdata.power.ToString()
+                        guest_os = $VMdata.guest.split(":")[1]
+                        tools_version = $VMdata.tools_version
+                        folder = $VMdata.folder.ToString()
+                        num_cpu = $VMdata.num_cpu.ToString()
+                        mem_totalgb = $VMdata.mem_totalgb.ToString()
+                        provisioned_space = $VMdata.provisioned_space.ToString()
+                        space_used = (([math]::Round(([int]$vmdata.used_space / [int]$vmdata.provisioned_space),2))*100).ToString() +"%"
+                    }).GetEnumerator() | Out-UDTableData -Property @("Name","Value")
+                }
+            }
+        }
+    }
+}
+
+$VMHostpage = New-UDPage -Url "/vmhost/:VMhost" -Endpoint {
+    #Dynamic page which provides an overview of the host.
+    param($VMhost)
+    $Hosts = Invoke-SqlCmd -ServerInstance $SQLInstance -Database $DBname -Query "SELECT host_name FROM vmware_hosts" 
+    New-UDRow -Columns {
+        New-UDColumn -Size 4 {
+                New-UDCard -Title "$VMhost Information (Not Live, from DB)" -Endpoint {
+                    $Query = "SELECT * FROM vmware_hosts WHERE host_name LIKE '%$VMhost%'"
+                    $Hostdata = Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $DBname -Query $Query
+                    New-UDTable -Headers @(" "," ") -Endpoint {
+                        ([ordered]@{
+                        power = $Hostdata.power.ToString()
+                        connected = $Hostdata.connected.ToString()
+                        cluster = $Hostdata.parent.ToString()
+                        network = $Hostdata.net_info.Tostring()
+                        Manufacturer = $Hostdata.manufacturer.ToString()
+                        Model = $Hostdata.model.tostring()
+                        Hyperthreading_enabled = "ESX: " + $Hostdata.hyper_threading.ToString() + " - Build " + $Hostdata.build.ToString()
+                        ESX_Version = $Hostdata.version.ToString()
+                        proc_type = $Hostdata.proc_type.ToString()
+                        num_cpu = $Hostdata.num_cpu.ToString()
+                        total_ghz = ([math]::Round(($Hostdata.cpu_total / 1024),2)).ToString() + "Ghz"
+                        percent_cpu_used = ([math]::Round(($Hostdata.cpu_usage / $Hostdata.cpu_total),2) * 100).ToString() + "%"
+                        total_mem = [math]::Round($Hostdata.mem_totalgb,2).ToString() + "GB"
+                        percent_mem_used = ([math]::Round(($Hostdata.mem_usagegb / $Hostdata.mem_totalgb),2) *100).ToString() + "%"
+                    }).GetEnumerator() | Out-UDTableData -Property @("Name","Value")
+                }
+            }
+        }
+    }
+}
+
+$VMwarePage = @($VMWareSummaryPage,$VMpage,$VMHostpage)
