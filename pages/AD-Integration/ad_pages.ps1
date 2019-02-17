@@ -31,6 +31,7 @@ $UserInfoPage = New-UDPage -Url "/user/:UserName" -Endpoint {
                 "Telephone Number" = ($Username.telephoneNumber)
                 "Mobile Number" = ($UserName.MobilePhone)
                 "Last Bad Password Attempt" = ($Username.LastBadPasswordAttempt)
+                "Bad Logon Count" = ($Username.badlogoncount)
                 "Home Directory" = ($Username.HomeDirectory)
                 "Created On" = ($Username.Created)
                 "Country" = ($UserName.Country)
@@ -42,6 +43,7 @@ $UserInfoPage = New-UDPage -Url "/user/:UserName" -Endpoint {
                 "Group Memberships" = ($Username.MemberOf).Count
                 "Locked Out" = ($UserName.LockedOut)
                 "Description" = ($Username.Description)
+
                 }.GetEnumerator() |Out-UDTableData -Property @("Name","Value")
             }
         }
@@ -83,12 +85,24 @@ $ComputerPage = New-UDPage -Url "/computer/main/:ComputerName" -Endpoint {
                 )
             }
 
-        New-UdGrid -Title "Services" -Headers @("DisplayName", "Status") -Properties @("DisplayName", "Status") -AutoRefresh -RefreshInterval 60 -Endpoint { 
+        New-UdGrid -Title "Services" -Headers @("DisplayName", "Status","Toggle") -Properties @("DisplayName", "Status","Toggle") -AutoRefresh -RefreshInterval 60 -Endpoint { 
             $Services = Get-Service -ComputerName $ComputerName 
             $Services | Foreach-Object {
                 [PSCustomObject]@{
                     DisplayName = $_.DisplayName.ToString().Trim()
                     Status = $_.Status.ToString()
+                    Toggle = If ($_.Status.ToString() -eq "Stopped"){
+                        New-UDButton -Text "Start Service" -OnClick {
+                            Get-Service -ComputerName $ComputerName -DisplayName $_.Displayname | Start-Service
+                            Show-UDToast -Message "Tried to start service, it should refresh within a minute"
+                            }
+                        }
+                        Else {
+                        New-UDButton -Text "Stop Service" -OnClick {
+                            Get-Service -ComputerName $ComputerName -DisplayName $_.DisplayName | Stop-Service
+                            Show-UDToast -Message "Tried to stop service, it should refresh within a minute"
+                            }
+                        }
                 }
             } | Out-UDGridData
         }
