@@ -215,17 +215,17 @@ $UserOverview = New-UDRow -Columns {
 }
 
 $PageSelector = New-UDElement -Tag div -Attributes @{
-    style = @{display = 'flex'; flexdirection = 'row'; width = '200%';}
+    style = @{display = 'flex'; flexdirection = 'row';}
     } -Content {
-        New-UDButton -Text "AD Summary" -OnClick {
-           Set-UDElement -Id page -Content { $ADSummary }
-        }
-        New-UDButton -Text "User Overview" -OnClick {
-            Set-UDElement -Id page -Content { $UserOverview }
-        }
-        New-UDButton -Text "AD Health (Coming Soon!)"
-        New-UDButton -Text "AD Management (Coming Soon!)"
+    New-UDButton -Text "AD Summary" -OnClick {
+        Set-UDElement -Id page -Content { $ADSummary }
     }
+    New-UDButton -Text "User Overview" -OnClick {
+        Set-UDElement -Id page -Content { $UserOverview }
+    }
+    New-UDButton -Text "AD Health (Coming Soon!)"
+    New-UDButton -Text "AD Management (Coming Soon!)"
+}
 
 $ADDataPage = New-UDPage -Name "ADSummary" -Icon signal -Content {
     $PageSelector

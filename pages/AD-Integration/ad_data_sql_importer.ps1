@@ -16,8 +16,7 @@ $DomainName = $DomainData.forest
 $Success = 1
 $UsersNoPwdExpire = ($userdata | where-object -Property "PasswordNeverExpires" -eq "True").count
 $OSData = $ComputerData | Where-Object -Property "Enabled" -eq "True" | Group-Object OperatingSystem -NoElement
-$PrivilegedGroups = @("Domain Admins","Enterprise Admins","Administrators","Server Operators","Server Management")
-
+$PrivilegedGroups = @("Domain Admins","Enterprise Admins","Schema Admins","Account Operators","Administrators","Server Operators","Server Management","Backup Operators","Remote Desktop Users")
 
 Set-Location SQLSERVER:\SQL\$computername\DEFAULT\databases\$dbname 
 
@@ -67,8 +66,29 @@ Foreach ($User in $UserData) {
     $PasswordLastSet = $User.PasswordLastSet.Ticks
     $CreatedOn = $User.whenCreated.Ticks
     $EmailAddress = $User.EmailAddress
-    $Query = "INSERT INTO ad_users (user_SAM_name,name,user_created,last_logon_date,user_extension,enabled,LockedOut,password_last_set,email_address) VALUES 
-    ('$SAMName','$Name','$CreatedOn','$LastLogonDate','$PhoneNumber','$Enabled','$LockedOut','$PasswordLastSet','$EmailAddress')"
+    $passwordnotrequired = $User.passwordnotrequired
+    $Passwordneverexpires = $User.passwordneverexpires
+    $passwordexpired = $User.passwordexpired
+    $Allowreversiblepasswordencryption = $User.allowreversiblepasswordencryption
+    $badlogoncount = $User.badlogoncount
+    $badpasswordtime = $User.badpasswordtime
+    $badpwdcount = $User.badpwdcount
+    $cannotchangepassword = $User.cannotchangepassword
+    $city = $User.city
+    $department = $User.department
+    $homedirectory = $User.homedirectory
+    $lockouttime = $User.lockouttime
+    $logoncount = $User.logoncount
+    $mobilephone = $User.mobilephone
+    $scriptpath = $User.scriptpath
+    $smartcardlogonrequired = $User.smartcardlogonrequired
+    $trustedfordelegation = $User.trustedfordelegation
+    $UseDESKeyOnly = $User.usedeskeyonly
+    $WhenChanged = $User.whenchanged
+    #Add to insert - passwordnotrequired,Passwordneverexpires,passwordexpired,Allowreversiblepasswordencryption,badlogoncount,badpasswordtime,badpwdcount,cannotchangepassword,city,department,homedirectory,lockouttime,logoncount,mobilephone,scriptpath,smartcardlogonrequired,trustedfordelegation,UseDESKeyOnly,WhenChanged
+    #$passwordnotrequired,$Passwordneverexpires,$passwordexpired,$Allowreversiblepasswordencryption,$badlogoncount,$badpasswordtime,$badpwdcount,$cannotchangepassword,$city,$department,$homedirectory,$lockouttime,$logoncount,$mobilephone,$scriptpath,$smartcardlogonrequired,$trustedfordelegation,$UseDESKeyOnly,$WhenChanged
+    $Query = "INSERT INTO ad_users (user_SAM_name,name,user_created,last_logon_date,user_extension,enabled,LockedOut,password_last_set,email_address,passwordnotrequired,Passwordneverexpires,passwordexpired,Allowreversiblepasswordencryption,badlogoncount,badpasswordtime,badpwdcount,cannotchangepassword,city,department,homedirectory,lockouttime,logoncount,mobilephone,scriptpath,smartcardlogonrequired,trustedfordelegation,UseDESKeyOnly,WhenChanged) VALUES 
+    ('$SAMName','$Name','$CreatedOn','$LastLogonDate','$PhoneNumber','$Enabled','$LockedOut','$PasswordLastSet','$EmailAddress','$passwordnotrequired','$Passwordneverexpires','$passwordexpired','$Allowreversiblepasswordencryption','$badlogoncount','$badpasswordtime','$badpwdcount','$cannotchangepassword','$city','$department','$homedirectory','$lockouttime','$logoncount','$mobilephone','$scriptpath','$smartcardlogonrequired','$trustedfordelegation','$UseDESKeyOnly','$WhenChanged')"
     Try {
         Invoke-Sqlcmd -Query $Query
         }

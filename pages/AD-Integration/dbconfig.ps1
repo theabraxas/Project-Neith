@@ -40,7 +40,26 @@ Invoke-Sqlcmd -Query "CREATE TABLE ad_users (
     enabled varchar(80),
     lockedOut varchar(80),
     email_address varchar(80),
-    password_last_set bigint
+    password_last_set bigint,
+    passwordnotrequired varchar(250),
+    Passwordneverexpires varchar(250),
+    passwordexpired varchar(250),
+    Allowreversiblepasswordencryption varchar(250),
+    badlogoncount varchar(250),
+    badpasswordtime varchar(250),
+    badpwdcount varchar(250),
+    cannotchangepassword varchar(250),
+    city varchar(250),
+    department varchar(250),
+    homedirectory varchar(250),
+    lockouttime varchar(250),
+    logoncount varchar(250),
+    mobilephone varchar(250),
+    scriptpath varchar(250),
+    smartcardlogonrequired varchar(250),
+    trustedfordelegation varchar(250),
+    UseDESKeyOnly varchar(250),
+    WhenChanged varchar(250)
     );"
 
 #Create AD Group Summary Table
