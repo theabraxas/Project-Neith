@@ -202,7 +202,7 @@ $UserOverview = New-UDRow -Columns {
             }
         }
         New-UDColumn -Size 4 -Endpoint {
-            New-UDChart -Type Doughnut -Endpoint {
+            New-UDChart -Title "Enabled vs Disabled Users" -Type Doughnut -Endpoint {
                 $EnabledDisabledChart = @(
                     @{"type" = "enabled"
                     "Value" = $EnabledUserCount}
@@ -211,7 +211,25 @@ $UserOverview = New-UDRow -Columns {
                     )
                 $EnabledDisabledChart | Out-UDChartData -DataProperty "value" -LabelProperty "Type" -BackgroundColor @("green","red")
         }
-    }       
+    }
+        New-UDColumn -Size 4 -Endpoint {
+            New-UDTable -Title "Security Information" -Headers @(" "," ") -Endpoint {
+            $UserDESKeyOnly = $ADUsers | Where-Object -Property USEDESKeyOnly -NotLike "False"
+            $UserTrustDelegation = $ADUsers | Where-Object -Property trustedfordelegation -NotLike "False"
+            $UserPasswordExpired = $ADUsers | Where-Object -Property passwordexpired -NotLike "False"
+            $UserPasswordNotRequired = $ADUsers | Where-Object -Property paswordnotrequired -Notlike "False"
+            $UserPasswordNeverExpire = $ADUsers | Where-Object -Property PasswordNeverExpires -Notlike "False"
+            $UserPasswordReversible = $ADUsers | Where-Object -Property AllowReversiblePasswordEncryption -Notlike "False"
+                @{
+                    "Users with 3DES Key Only" = ($UserDESKeyOnly.Count)
+                    "Users Trusted for Delegation" = ($UserTrustDelegation.Count)
+                    "Users with expired passwords" = ($UserPasswordExpired.Count)
+                    "Users with no password required" = ($UserPasswordNotRequired.Count)
+                    "Users with Password Never Expires" = ($UserPasswordNeverExpire.Count)
+                    "Users with Reversible Passwords" = ($UserPasswordReversible.Count)
+                }.GetEnumerator() | Out-UDTableData -Property @("Name", "Value")
+            }
+        }
 }
 
 $PageSelector = New-UDElement -Tag div -Attributes @{
