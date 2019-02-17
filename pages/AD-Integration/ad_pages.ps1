@@ -4,17 +4,17 @@ $EnabledUserCount = ($ADUsers | Where-Object -Property Enabled -eq -Value $True)
 $DisabledUserCount = $UserCount - $EnabledUserCount
 $LockedOutUsers = @($ADUsers | Where-Object -Property LockedOut -eq -Value $True)
 $LockedOutUserCount = $LockedOutUsers.Count
-$UsersWithEmail = ($ADUsers | Where-Object -Property EmailAddress -NotLike "").Count
+$UsersWithEmail = ($ADUsers | Where-Object -Property Email_Address -NotLike "").Count
 $ADData = @(Invoke-Sqlcmd -Query "Select TOP 1 * from ad_summary ORDER BY date DESC")
 $Data = Invoke-Sqlcmd -Query "SELECT * FROM ad_summary"
 $Ticks_90days = 864000000000 * 90
+$ft_1day = ((Get-Date).AddDays(-1))
 
 $Features = @();
 Foreach ($D in $Data) {
     $Features += [PSCustomObject]@{ "Date" = $D.date; "Users" = $D.total_users ; "EnabledUsers" = $D.total_users_enabled ; "Computers" = $D.total_computers ; "EnabledComputers" = $D.total_enabled_computers }
     }
 
-            
 $UserInfoPage = New-UDPage -Url "/user/:UserName" -Endpoint {
     #Dynamic page which provides an overview of the users attributes.
     param($UserName)
@@ -69,15 +69,18 @@ $ComputerPage = New-UDPage -Url "/computer/main/:ComputerName" -Endpoint {
             'LAPS PW' = ($pw) 
             }.GetEnumerator() | Out-UDTableData -Property @("Name", "Value")
         } 
+
         New-UDInput -Title "Run Remote Command" -Content {
             New-UDInputField -type textbox -Name Command 
             } -Endpoint {
                 param($Command) 
+                #Add server-side validation of role/identity to do this. Does UD allow a post to some call which would let this run regardless of auth?
+                #if allowed do it, else whatever. log both.
                 $scriptblock = [scriptblock]::Create($Command)
                 $cmd_result = Invoke-Command -ComputerName $Computername -ScriptBlock $scriptblock 
                 New-UDInputAction -Content @(
                     New-UDCard -Title "Command Result" -Text "Command Completed Successfully`n$cmd_result"
-                    )
+                )
             }
 
         New-UdGrid -Title "Services" -Headers @("DisplayName", "Status") -Properties @("DisplayName", "Status") -AutoRefresh -RefreshInterval 60 -Endpoint { 
@@ -185,11 +188,11 @@ $UserOverview = New-UDRow -Columns {
         New-UDColumn -Size 4 -Endpoint {
             New-UdTable -Title "User Information" -Headers @(" ", " ") -Endpoint {
                 $EnabledUsers = ($ADUsers | Where-Object -Property Enabled -eq -Value $True)
-                $PWExpired = 0
+                $UsersPWgt90Days = 0
                 Foreach ($User in $EnabledUsers) {
                     $pwdlastset = $User.password_last_set
                     $threshold = ((Get-Date).Ticks - $Ticks_90days)
-                    If ($pwdlastset -lt $threshold) {$PWExpired +=1 }
+                    If ($pwdlastset -lt $threshold) {$UsersPWgt90Days+=1 }
                 }
             @{
                 "User Count" = ($UserCount)
@@ -197,7 +200,7 @@ $UserOverview = New-UDRow -Columns {
                 "Disabled Users" = ($DisabledUserCount)
                 "Locked Out Users" = ($LockedOutUserCount)  
                 "Users with email" = ($UsersWithEmail)   
-                "Users with expired pws" = ($PWExpired)   
+                "Users with pws older than 90 days" = ($UsersPwGt90Days)   
                 }.GetEnumerator() | Out-UDTableData -Property @("Name", "Value")
             }
         }
@@ -210,16 +213,19 @@ $UserOverview = New-UDRow -Columns {
                     "Value" = $DisabledUserCount}
                     )
                 $EnabledDisabledChart | Out-UDChartData -DataProperty "value" -LabelProperty "Type" -BackgroundColor @("green","red")
+            }
         }
-    }
         New-UDColumn -Size 4 -Endpoint {
-            New-UDTable -Title "Security Information" -Headers @(" "," ") -Endpoint {
+            New-UDTable -Title "All User Security Information" -Headers @(" "," ") -Endpoint {
             $UserDESKeyOnly = $ADUsers | Where-Object -Property USEDESKeyOnly -NotLike "False"
             $UserTrustDelegation = $ADUsers | Where-Object -Property trustedfordelegation -NotLike "False"
             $UserPasswordExpired = $ADUsers | Where-Object -Property passwordexpired -NotLike "False"
             $UserPasswordNotRequired = $ADUsers | Where-Object -Property paswordnotrequired -Notlike "False"
             $UserPasswordNeverExpire = $ADUsers | Where-Object -Property PasswordNeverExpires -Notlike "False"
             $UserPasswordReversible = $ADUsers | Where-Object -Property AllowReversiblePasswordEncryption -Notlike "False"
+            $UsersWithBadLogonsNow = $ADUsers | Where-Object -Property BadPasswordCount -GT 0
+            $UsersWithRecentBadPasswords = $ADUsers | Where-Object -Property BadPasswordTime -GT $ft_1day.ToFileTime() #checks for bad password over the last day
+            $UsersCannotChangePassword = $ADUsers | Where-Object -Property CannotChangePassword -NotLike "False"
                 @{
                     "Users with 3DES Key Only" = ($UserDESKeyOnly.Count)
                     "Users Trusted for Delegation" = ($UserTrustDelegation.Count)
@@ -227,6 +233,34 @@ $UserOverview = New-UDRow -Columns {
                     "Users with no password required" = ($UserPasswordNotRequired.Count)
                     "Users with Password Never Expires" = ($UserPasswordNeverExpire.Count)
                     "Users with Reversible Passwords" = ($UserPasswordReversible.Count)
+                    "Users with current failed password attempts" = ($UsersWithBadLogonsNow.Count)
+                    "Users with recent bad passwords (1 day)" = ($UsersWithRecentBadPasswords.Count)
+                    "Users who cannot change password" = ($UsersCannotChangePassword.Count)
+
+            }.GetEnumerator() | Out-UDTableData -Property @("Name", "Value")
+        }
+    }
+        New-UDColumn -Size 4 -Endpoint {
+            New-UDTable -Title "Enabled User Security Information" -Headers @(" "," ") -Endpoint {
+            $UserDESKeyOnly = $ADUsers | Where-Object -Property Enabled -Like "True" | Where-Object -Property USEDESKeyOnly -NotLike "False"
+            $UserTrustDelegation = $ADUsers | Where-Object -Property Enabled -Like "True" | Where-Object -Property trustedfordelegation -NotLike "False"
+            $UserPasswordExpired = $ADUsers | Where-Object -Property Enabled -Like "True" | Where-Object -Property passwordexpired -NotLike "False"
+            $UserPasswordNotRequired = $ADUsers | Where-Object -Property Enabled -Like "True" | Where-Object -Property paswordnotrequired -Notlike "False"
+            $UserPasswordNeverExpire = $ADUsers | Where-Object -Property Enabled -Like "True" | Where-Object -Property PasswordNeverExpires -Notlike "False"
+            $UserPasswordReversible = $ADUsers | Where-Object -Property Enabled -Like "True" | Where-Object -Property AllowReversiblePasswordEncryption -Notlike "False"
+            $UsersWithBadLogonsNow = $ADUsers | Where-Object -Property Enabled -Like "True" | Where-Object -Property BadPasswordCount -GT 0
+            $UsersWithRecentBadPasswords = $ADUsers | Where-Object -Property Enabled -Like "True" | Where-Object -Property BadPasswordTime -GT $ft_1day.ToFileTime() #checks for bad password over the last day
+            $UsersCannotChangePassword = $ADUsers | Where-Object -Property Enabled -Like "True" | Where-Object -Property CannotChangePassword -NotLike "False"
+                @{
+                    "Users with 3DES Key Only" = ($UserDESKeyOnly.Count)
+                    "Users Trusted for Delegation" = ($UserTrustDelegation.Count)
+                    "Users with expired passwords" = ($UserPasswordExpired.Count)
+                    "Users with no password required" = ($UserPasswordNotRequired.Count)
+                    "Users with Password Never Expires" = ($UserPasswordNeverExpire.Count)
+                    "Users with Reversible Passwords" = ($UserPasswordReversible.Count)
+                    "Users with current failed password attempts" = ($UsersWithBadLogonsNow.Count)
+                    "Users with recent bad passwords (1 day)" = ($UsersWithRecentBadPasswords.Count)
+                    "Users who cannot change password" = ($UsersCannotChangePassword.Count)
                 }.GetEnumerator() | Out-UDTableData -Property @("Name", "Value")
             }
         }

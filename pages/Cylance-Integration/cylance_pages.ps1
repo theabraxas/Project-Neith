@@ -67,7 +67,7 @@ $CylanceComputerPage = New-UDPage -Url "/dynamic/cylance/computer/:CompName" -En
             'Files Analyzed' = ($AgentData.files_analyzed)
             'Last Online Date' = ($AgentData.online_date)
             'Last Reported User' = ($AgentData.last_reported_user)
-            'IP Address' = ($AgentData.ip_addresses)
+            'IP Address' = ($AgentData.ip_addresses.Replace(',',', '))
             'MAC Addresses' = ($AgentData.mac_addresses)
             }.GetEnumerator() | Out-UDTableData -Property @("Name", "Value")
         }    }
