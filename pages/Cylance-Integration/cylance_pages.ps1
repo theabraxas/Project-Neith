@@ -55,6 +55,10 @@ $CylanceComputerPage = New-UDPage -Url "/dynamic/cylance/computer/:CompName" -En
     $AgentData = Invoke-Sqlcmd -Query $Query -ServerInstance $SQLInstance -Database $dbname
     $query = "SELECT * FROM cylance_event_data WHERE device_name = '$CompName'"
     $EventsData = Invoke-Sqlcmd -Query $Query -ServerInstance $SQLInstance -Database $dbname
+    $query = "SELECT * FROM cylance_cleared_data WHERE device_name = '$CompName'"
+    $ClearedData = Invoke-Sqlcmd -Query $Query -ServerInstance $SQLInstance -Database $dbname
+    $query = "SELECT * FROM cylance_threat_data WHERE device_name = '$CompName'"
+    $ThreatData = Invoke-Sqlcmd -Query $Query -ServerInstance $SQLInstance -Database $dbname
     New-UDRow -Columns {
         New-UDColumn -Size 4 {
             New-UdTable -Title "$CompName Agent Information" -Headers @(" ", " ") -Endpoint {
@@ -70,9 +74,23 @@ $CylanceComputerPage = New-UDPage -Url "/dynamic/cylance/computer/:CompName" -En
             'IP Address' = ($AgentData.ip_addresses.Replace(',',', '))
             'MAC Addresses' = ($AgentData.mac_addresses)
             }.GetEnumerator() | Out-UDTableData -Property @("Name", "Value")
-        }    }
-        New-UDColumn -Size 8 {
-            New-UDGrid -Title "$compname event data" -Headers @('date','file_path','event_status','cylance_score','classification','detected_by','running','ever_run') `
+            }
+        }
+        New-UDColumn -Size 4 {
+            $TopThreats = $ThreatData | Group-Object -Property Classification | Sort-Object -Property Count -Descending | Select Count, Name -First 10
+            New-UDChart -Title "Classification of Threats" -Type Doughnut -Endpoint {
+                $TopThreats| Out-UDChartData -DataProperty Count -LabelProperty Name -BackgroundColor @("#75cac3","#2a6171","#f3d516","#4b989e","#86df4a","#b816f3","#f31651","#4e4b9e","#1F1F1F","#777777","#FFFFFF") -BorderColor 'black' -HoverBackgroundColor '#FF9F0D'
+            }
+        }
+        New-UDColumn -Size 4 {
+            $DetectionsByType = $ClearedData | Group-Object -Property detected_by | Sort-Object -Property Count -Descending | Select Count, Name -First 10
+            New-UDChart -Title "Findings by Detection Method" -Type Doughnut -Endpoint {
+                $DetectionsByType| Out-UDChartData -DataProperty Count -LabelProperty Name -BackgroundColor @("#75cac3","#2a6171","#f3d516","#4b989e","#86df4a","#b816f3","#f31651","#4e4b9e","#1F1F1F","#777777","#FFFFFF") -BorderColor 'black' -HoverBackgroundColor '#FF9F0D'
+            }
+        }
+        New-UDRow        
+        New-UDColumn -Size 12 {
+            New-UDGrid -Title "$compname Recent Event Data" -Headers @('date','file_path','event_status','cylance_score','classification','detected_by','running','ever_run') `
         -Properties @('date','file_path','event_status','cylance_score','classification','detected_by','running','ever_run') -Endpoint {
             $EventsData | ForEach-Object {
                 [PSCustomObject]@{
@@ -87,6 +105,41 @@ $CylanceComputerPage = New-UDPage -Url "/dynamic/cylance/computer/:CompName" -En
                 }
             } | Out-UDGridData
         }}
+        New-UDRow
+        New-UDColumn -Size 12 {
+            New-UDGrid -Title "$CompName Cleared Data" -Headers @('date_removed','file_path','cylance_score','classification','detected_by','running','ever_run') `
+            -Properties @('date_removed','file_path','cylance_score','classification','detected_by','running','ever_run') -Endpoint {
+            $ClearedData | Foreach-Object {
+                [PSCustomObject]@{
+                    date_removed = $_.date_removed.toString()
+                    file_path = $_.file_path.Replace('\',' \').toString()
+                    cylance_score = $_.cylance_score.toString()
+                    classification = $_.classification.toString()
+                    detected_by = $_.detected_by.ToString()
+                    running = $_.running.toString()
+                    ever_run = $_.ever_run.toString()
+                    }
+                } | Out-UDGridData
+            }
+        }
+        New-UDRow
+        New-UDColumn -Size 12 {
+            New-UDGrid -Title "$CompName Threat Data" -Headers @('file_name','file_status','cylance_score','signature_status','av_industry','safelisted','classification','ever_run','detected_by') -Properties @('file_name','file_status','cylance_score','signature_status','av_industry','safelisted','classification','ever_run','detected_by') -Endpoint {
+            $ThreatData | ForEach-Object {    
+                [PSCustomObject]@{
+                    file_name = $_.file_name.ToString()
+                    file_status = $_.file_status.ToString()
+                    cylance_score = $_.cylance_score.ToString()
+                    signature_status = $_.signature_status.ToString()
+                    av_industry = $_.av_industry.ToString()
+                    safelisted = $_.safelisted.ToString()
+                    classification = $_.classification.ToString()
+                    ever_run = $_.ever_run.ToString()
+                    detected_by = $_.detected_by.ToString()
+                }
+            } | Out-UDGridData
+            }
+        }
     }
 }
 
