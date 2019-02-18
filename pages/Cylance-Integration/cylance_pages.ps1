@@ -145,11 +145,14 @@ $CylanceComputerPage = New-UDPage -Url "/dynamic/cylance/computer/:CompName" -En
 
 #Add default policy counter and no-zone counters to table.
 $CylancePage = New-UDPage -Name "Cylance" -Icon unlock -Endpoint {
+    $CylanceComputers = (Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $dbname -Query "SELECT device_name FROM cylance_device_data ORDER BY device_name")
     New-UDLayout -Columns 3 -Content {
-        New-UDInput -Title "Enter Computer Name: " -Endpoint {
+        New-UDInput -Title "Enter Computer Name: " -Content {
+            New-UDInputField -Type select -Values @($CylanceComputers.device_name) -Name "CompName"
+        } -Endpoint {
             param($Compname)
             New-UDInputAction -RedirectUrl "/dynamic/cylance/computer/$CompName"
-            }
+        }
         New-UDCounter -Title "Cylance Computers" -Endpoint {
             $CylanceComputerCount
             }
