@@ -4,7 +4,6 @@ $VMWareVMData = @(Invoke-Sqlcmd -Query "SELECT * FROM vmware_guests")
 $CPU_Percent = ($VMWareSummaryData.cpu_usage / $VMWareSummaryData.cpu_total) * 100
 $Mem_Percent = ($VMWareSummaryData.mem_usagegb / $VMWareSummaryData.mem_totalgb) * 100
 
-
 $VMWareSummaryPage = New-UDPage -Name "VMWare" -Icon desktop -Endpoint {
     New-UDLayout -Columns 3 -Content {
         New-UdTable -Title "VMware Information" -Headers @("name", "value") -Endpoint {
@@ -13,20 +12,26 @@ $VMWareSummaryPage = New-UDPage -Name "VMWare" -Icon desktop -Endpoint {
             'Number of Hosts' = $VMWareSummaryData.num_hosts
             'Number of VMs' = $VMWareSummaryData.num_vms
             'Number of CPUs' = $VMWareSummaryData.num_cpu
-            'Memory Total' =  [math]::Round($VMWareSummaryData.mem_totalgb)
-            'Memory Usage' = [math]::Round($VMWareSummaryData.mem_usagegb)
-            'Memory Percentage' = [Math]::Round($Mem_Percent,2)
-            'CPU Total' = $VMWareSummaryData.cpu_total
-            'CPU Usage' = $VMWareSummaryData.cpu_usage
-            'CPU Percentage' = [Math]::Round($CPU_Percent,2)
+            'Memory Total' =  [math]::Round($VMWareSummaryData.mem_totalgb).ToString() + "GB"
+            'Memory Usage' = [math]::Round($VMWareSummaryData.mem_usagegb).ToString() + "GB"
+            'Memory Percentage' = [Math]::Round($Mem_Percent,2).ToString() + "%"
+            'CPU Total' = ([math]::Round(($VMWareSummaryData.cpu_total / 1024),2)).ToString() + "Ghz"
+            'CPU Usage' = ([math]::Round(($VMWareSummaryData.cpu_usage / 1024),2)).ToString() + "Ghz"
+            'CPU Percentage' = [Math]::Round($CPU_Percent,2).ToString() + "%"
             'Hosts without Hyperthreading' = $NoHyperThread.ItemArray.Count.ToString()
             }).GetEnumerator() | Out-UDTableData -Property @("name","value")
         }
-        New-UDInput -Title "Enter Computer Name: " -Endpoint {
+        New-UDInput -Title "Enter VM Name: " -Content {
+            $VMs = @(Invoke-Sqlcmd  -ServerInstance $SQLInstance -Database $dbname -Query "SELECT host_name FROM vmware_guests")
+            New-UDInputField -type select -Values @($VMs.host_name) -Name "VMName"
+        } -Endpoint {
             param($VMName)
             New-UDInputAction -RedirectUrl "/vm/$VMName"
         }
-        New-UDInput -Title "Enter Host Name: "  -Endpoint {
+        New-UDInput -Title "Enter Host Name: "  -Content {
+            $VMhosts = @(Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $dbname -Query "SELECT host_name FROM vmware_hosts")
+            New-UDInputField -Type select -Values @($VMhosts.host_name) -Name "VMHost"
+            } -Endpoint {
             param($VMhost)
             New-UDInputAction -RedirectUrl "/vmhost/$VMhost"
         }
