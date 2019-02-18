@@ -151,7 +151,7 @@ $CylancePage = New-UDPage -Name "Cylance" -Icon unlock -Endpoint {
     $CylanceComputers = (Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $dbname -Query "SELECT device_name FROM cylance_device_data ORDER BY device_name")
     New-UDLayout -Columns 3 -Content {
         New-UDInput -Title "Enter Computer Name: " -Content {
-            New-UDInputField -Type select -Values @($CylanceComputers.device_name) -Name "CompName"
+            New-UDInputField -Type select -Values @($CylanceComputers.device_name) -Name "CompName" -DefaultValue $CylanceComputers.device_name[0]
         } -Endpoint {
             param($Compname)
             New-UDInputAction -RedirectUrl "/dynamic/cylance/computer/$CompName"

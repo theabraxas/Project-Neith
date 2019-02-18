@@ -51,6 +51,7 @@ $UserInfoPage = New-UDPage -Url "/user/:UserName" -Endpoint {
 }
 
 $ComputerPage = New-UDPage -Url "/computer/main/:ComputerName" -Endpoint {
+    #Dynamic page which provides information about the computer objects
     param($ComputerName)
     $pw = (Get-ADComputer $ComputerName -Properties ms-MCS-AdmPwd | Select -ExpandProperty ms-MCS-AdmPwd) ##Replace 'ms-MCS-AdmPwd' with your LAPS ADSI property name.
     $uptime = Get-CimInstance -ComputerName $ComputerName -ClassName win32_operatingsystem | select-object -ExpandProperty lastbootuptime
@@ -113,6 +114,7 @@ $ComputerPage = New-UDPage -Url "/computer/main/:ComputerName" -Endpoint {
 }
 
 $ComputerLivePage = New-UDPage -Url "/computer/live/:ComputerName" -Endpoint {
+    #Dynamic Page which provides detailed information about the computers performance
     param($ComputerName)
     New-UDLayout -Columns 3 -Content {
         New-UdTable -Title "Server Information" -Headers @(" ", " ") -Endpoint {
@@ -155,6 +157,7 @@ $ComputerLivePage = New-UDPage -Url "/computer/live/:ComputerName" -Endpoint {
 }
 
 $ADSummary = New-UDLayout -Columns 1 -Content {
+    #Summary of AD information
     New-UDLayout -Columns 4 -Content {
     #AD User Unlock
         New-UDInput -Title "Unlock User" -Endpoint {
@@ -180,8 +183,8 @@ $ADSummary = New-UDLayout -Columns 1 -Content {
             New-UDInputAction -RedirectUrl "/user/$UserName"
         }
         New-UDInput -Title "Enter any AD Object: " -Endpoint {
-            param($adObject)
-            New-UDInputAction -RedirectUrl "/ad/$adObject"
+            param($ObjectName)
+            New-UDInputAction -RedirectUrl "/ad/$ObjectName"
         }
     }
     New-UDColumn -Size 12 {
@@ -200,6 +203,7 @@ $ADSummary = New-UDLayout -Columns 1 -Content {
 }
 
 $UserOverview = New-UDRow -Columns {
+    #AD All User Overview Page
         New-UDColumn -Size 4 {
             New-UDCard -Title "UserOverview" -Text "This is a page to view user information"
             }
@@ -284,6 +288,7 @@ $UserOverview = New-UDRow -Columns {
         }
 }
 
+#Nav Menu for AD pages
 $PageSelector = New-UDElement -Tag div -Attributes @{
     style = @{display = 'flex'; flexdirection = 'row';}
     } -Content {
@@ -297,7 +302,8 @@ $PageSelector = New-UDElement -Tag div -Attributes @{
     New-UDButton -Text "AD Management (Coming Soon!)"
 }
 
-$ADDataPage = New-UDPage -Name "ADSummary" -Icon signal -Content {
+#Primary Page which the "AD Summary" page links to
+$ADDataPage = New-UDPage -Name "AD Summary" -Icon signal -Content {
     $PageSelector
     New-UDRow
     New-UDElement -tag div -id page -Content {
@@ -306,6 +312,5 @@ $ADDataPage = New-UDPage -Name "ADSummary" -Icon signal -Content {
 }
 
 
-
-
+#List of pages to give to main
 $ADPage = @($ADDataPage, $UserInfoPage, $ComputerPage, $ComputerLivePage,$ObjectPage)

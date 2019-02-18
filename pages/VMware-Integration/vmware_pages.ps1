@@ -5,6 +5,7 @@ $CPU_Percent = ($VMWareSummaryData.cpu_usage / $VMWareSummaryData.cpu_total) * 1
 $Mem_Percent = ($VMWareSummaryData.mem_usagegb / $VMWareSummaryData.mem_totalgb) * 100
 
 $VMWareSummaryPage = New-UDPage -Name "VMWare" -Icon desktop -Endpoint {
+    #Overview of VMware data
     New-UDLayout -Columns 3 -Content {
         New-UdTable -Title "VMware Information" -Headers @("name", "value") -Endpoint {
             $NoHyperThread = Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $dbname -Query "SELECT hyper_threading FROM vmware_hosts WHERE hyper_threading = 'False'"
@@ -116,4 +117,5 @@ $VMHostpage = New-UDPage -Url "/vmhost/:VMhost" -Endpoint {
     }
 }
 
+#Adds pages to $pages array in main
 $VMwarePage = @($VMWareSummaryPage,$VMpage,$VMHostpage)
