@@ -94,3 +94,11 @@ The webserver is, as mentioned previously, utilizing PowerShell UniversalDashboa
 * Select Default Installation Options
 * Use Windows authentication
 * It is recommended to also install SQL Server Management Studio as well: https://go.microsoft.com/fwlink/?linkid=2043154
+
+# Major Upcoming Items
+* O365 / Azure AD
+* Nessus
+* OTX/VT/Talos/HaveIBeenPwned
+* DNS/DHCP/AD Forest Info
+* Paloalto & Fortinet
+* Common computer tasks for remote computers (flushdns, release & renew IP, Update, gpresult, add task, av scan, etc)
