@@ -62,7 +62,7 @@ $CylanceComputerPage = New-UDPage -Url "/dynamic/cylance/computer/:CompName" -En
     New-UDRow -Columns {
         New-UDColumn -Size 4 {
             New-UdTable -Title "$CompName Agent Information" -Headers @(" ", " ") -Endpoint {
-        @{
+        ([ordered]@{
             'Operating System' = ($AgentData.os_version)
             'Cylance Policy' = ($AgentData.Policy)
             'Agent Version' = ($AgentData.agent_version)
@@ -73,7 +73,10 @@ $CylanceComputerPage = New-UDPage -Url "/dynamic/cylance/computer/:CompName" -En
             'Last Reported User' = ($AgentData.last_reported_user)
             'IP Address' = ($AgentData.ip_addresses.Replace(',',', '))
             'MAC Addresses' = ($AgentData.mac_addresses)
-            }.GetEnumerator() | Out-UDTableData -Property @("Name", "Value")
+            'Return to Cylance Page' = (New-UDButton -Text "Return" -OnClick {
+                Invoke-UDRedirect -Url "/Cylance"}
+                )
+            }).GetEnumerator() | Out-UDTableData -Property @("Name", "Value")
             }
         }
         New-UDColumn -Size 4 {

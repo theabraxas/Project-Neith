@@ -23,14 +23,14 @@ $VMWareSummaryPage = New-UDPage -Name "VMWare" -Icon desktop -Endpoint {
         }
         New-UDInput -Title "Enter VM Name: " -Content {
             $VMs = @(Invoke-Sqlcmd  -ServerInstance $SQLInstance -Database $dbname -Query "SELECT host_name FROM vmware_guests")
-            New-UDInputField -type select -Values @($VMs.host_name) -Name "VMName"
+            New-UDInputField -type select -Values @($VMs.host_name) -Name "VMName" -DefaultValue $vms[0].host_name
         } -Endpoint {
             param($VMName)
             New-UDInputAction -RedirectUrl "/vm/$VMName"
         }
         New-UDInput -Title "Enter Host Name: "  -Content {
             $VMhosts = @(Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $dbname -Query "SELECT host_name FROM vmware_hosts")
-            New-UDInputField -Type select -Values @($VMhosts.host_name) -Name "VMHost"
+            New-UDInputField -Type select -Values @($VMhosts.host_name) -Name "VMHost" -DefaultValue $VMHosts[0].host_name
             } -Endpoint {
             param($VMhost)
             New-UDInputAction -RedirectUrl "/vmhost/$VMhost"

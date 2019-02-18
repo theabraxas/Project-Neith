@@ -155,7 +155,7 @@ $ComputerLivePage = New-UDPage -Url "/computer/live/:ComputerName" -Endpoint {
 }
 
 $ADSummary = New-UDLayout -Columns 1 -Content {
-    New-UDLayout -Columns 3 -Content {
+    New-UDLayout -Columns 4 -Content {
     #AD User Unlock
         New-UDInput -Title "Unlock User" -Endpoint {
             param($UserName)
@@ -178,6 +178,10 @@ $ADSummary = New-UDLayout -Columns 1 -Content {
         New-UDInput -Title "Enter User Name: " -Endpoint {
             param($UserName)
             New-UDInputAction -RedirectUrl "/user/$UserName"
+        }
+        New-UDInput -Title "Enter any AD Object: " -Endpoint {
+            param($adObject)
+            New-UDInputAction -RedirectUrl "/ad/$adObject"
         }
     }
     New-UDColumn -Size 12 {
@@ -301,4 +305,7 @@ $ADDataPage = New-UDPage -Name "ADSummary" -Icon signal -Content {
     }
 }
 
-$ADPage = @($ADDataPage, $UserInfoPage, $ComputerPage, $ComputerLivePage)
+
+
+
+$ADPage = @($ADDataPage, $UserInfoPage, $ComputerPage, $ComputerLivePage,$ObjectPage)
