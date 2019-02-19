@@ -18,15 +18,14 @@ $UsersNoPwdExpire = ($userdata | where-object -Property "PasswordNeverExpires" -
 $OSData = $ComputerData | Where-Object -Property "Enabled" -eq "True" | Group-Object OperatingSystem -NoElement
 $PrivilegedGroups = @("Domain Admins","Enterprise Admins","Schema Admins","Account Operators","Administrators","Server Operators","Server Management","Backup Operators","Remote Desktop Users")
 
-Set-Location SQLSERVER:\SQL\$computername\DEFAULT\databases\$dbname 
 
 #Update Summary Data Table
-Invoke-Sqlcmd -Query "INSERT INTO ad_summary (date, success, total_users ,total_users_enabled ,total_groups ,total_computers ,total_enabled_computers, forest_functional_level) 
+Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "INSERT INTO ad_summary (date, success, total_users ,total_users_enabled ,total_groups ,total_computers ,total_enabled_computers, forest_functional_level) 
 VALUES('$QueryDate','$Success','$TotalUsers','$EnabledUsers','$TotalGroups','$TotalComputers','$EnabledComputers','$ForestFunctionalLevel')"
 
 #Update AD OS Summary Table
-$os_columns= Invoke-Sqlcmd -Query "Select * from INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'ad_os_summary'"
-Invoke-Sqlcmd -Query "INSERT INTO ad_os_summary (date) Values ('$QueryDate')"
+$os_columns= Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "Select * from INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'ad_os_summary'"
+Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "INSERT INTO ad_os_summary (date) Values ('$QueryDate')"
 Foreach ($OS in $OSData) { 
     $osname = $os.name
     $oscount = $os.count
@@ -34,14 +33,14 @@ Foreach ($OS in $OSData) {
         $oscount = 0
     }
     If ($OS.Name -inotin $os_columns.column_name) {
-        Invoke-Sqlcmd -Query "ALTER TABLE ad_os_summary ADD ""$osname"" int;"
+        Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "ALTER TABLE ad_os_summary ADD ""$osname"" int;"
         }
     Write-Host "UPDATE ad_os_summary SET ""$osname""=$oscount WHERE date = (select max(date) from ad_os_summary)"
-    Invoke-Sqlcmd -Query "UPDATE ad_os_summary SET ""$osname""=$oscount WHERE date = (select max(date) from ad_os_summary)"
+    Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "UPDATE ad_os_summary SET ""$osname""=$oscount WHERE date = (select max(date) from ad_os_summary)"
 }
 
 #Update Computer Date Table
-Invoke-Sqlcmd -Query "DELETE FROM ad_computers"
+Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "DELETE FROM ad_computers"
 Foreach ($Computer in $ComputerData) {
     $Name = $Computer.Name
     $OS = $Computer.OperatingSystem
@@ -51,11 +50,11 @@ Foreach ($Computer in $ComputerData) {
     $DNSName = $Computer.DNSHostName
     $Query = "INSERT INTO ad_computers (comp_name,operating_system,last_logon_time,bad_kerb_method,enabled,dns_name) VALUES 
     ('$Name','$OS','$LastLogonTime','$BadKerbPlaceholder','$Enabled','$DNSName')"
-    Invoke-Sqlcmd -Query $Query
+    Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query $Query
 }
 
 #Update User Data Table
-Invoke-Sqlcmd -Query "DELETE FROM ad_users"
+Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "DELETE FROM ad_users"
 Foreach ($User in $UserData) {
     $Name = $User.Name
     $SAMName = $User.SamAccountName
@@ -90,15 +89,15 @@ Foreach ($User in $UserData) {
     $Query = "INSERT INTO ad_users (user_SAM_name,name,user_created,last_logon_date,user_extension,enabled,LockedOut,password_last_set,email_address,passwordnotrequired,Passwordneverexpires,passwordexpired,Allowreversiblepasswordencryption,badlogoncount,badpasswordtime,badpwdcount,cannotchangepassword,city,department,homedirectory,lockouttime,logoncount,mobilephone,scriptpath,smartcardlogonrequired,trustedfordelegation,UseDESKeyOnly,WhenChanged) VALUES 
     ('$SAMName','$Name','$CreatedOn','$LastLogonDate','$PhoneNumber','$Enabled','$LockedOut','$PasswordLastSet','$EmailAddress','$passwordnotrequired','$Passwordneverexpires','$passwordexpired','$Allowreversiblepasswordencryption','$badlogoncount','$badpasswordtime','$badpwdcount','$cannotchangepassword','$city','$department','$homedirectory','$lockouttime','$logoncount','$mobilephone','$scriptpath','$smartcardlogonrequired','$trustedfordelegation','$UseDESKeyOnly','$WhenChanged')"
     Try {
-        Invoke-Sqlcmd -Query $Query
+        Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query $Query
         }
     Catch {
-        Invoke-Sqlcmd -Query "INSERT INTO ad_users (user_SAM_name,name) VALUES ('$SAMName','$Name')"
+        Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "INSERT INTO ad_users (user_SAM_name,name) VALUES ('$SAMName','$Name')"
         }
 }
 
 #Update AD Group Data Table
-Invoke-Sqlcmd -Query "DELETE FROM ad_groups;"
+Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "DELETE FROM ad_groups;"
 Foreach ($Group in $GroupData) {
     $objectsid = $Group.objectsid.value
     $samaccountname = $Group.SamAccountName
@@ -114,11 +113,11 @@ Foreach ($Group in $GroupData) {
     $protect_from_deletion = $Group.ProtectedFromAccidentalDeletion
     $managedby = $Group.ManagedBy
     Try {
-        Invoke-Sqlcmd -Query "INSERT INTO ad_groups (objectsid,samaccountname,members,member_count,memberof,memberof_count,created,modified,description,groupcategory,groupscope,protect_from_deletion,managedby)
+        Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "INSERT INTO ad_groups (objectsid,samaccountname,members,member_count,memberof,memberof_count,created,modified,description,groupcategory,groupscope,protect_from_deletion,managedby)
             VALUES ('$objectsid','$samaccountname','$members','$member_count','$memberof','$memberof_count','$created','$modified','$description','$groupcategory','$groupscope','$protect_from_deletion','$managedby')"
         }
     Catch {
-        Invoke-Sqlcmd -Query "INSERT INTO ad_groups(objectsid,samaccountname,member_count) VALUES ('$objectsid','$samaccountname','$member_count')"
+        Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "INSERT INTO ad_groups(objectsid,samaccountname,member_count) VALUES ('$objectsid','$samaccountname','$member_count')"
     }
 }
 

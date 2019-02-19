@@ -1,5 +1,5 @@
 ﻿#Some weird SQL to get all the tables and count of values.
-$RecordsPerTable = @(Invoke-Sqlcmd -Query "select t.name TableName, i.rows Records
+$RecordsPerTable = @(Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "select t.name TableName, i.rows Records
             from sysobjects t, sysindexes i
             where t.xtype = 'U' and i.id = t.id and i.indid in (0,1)
             order by TableName;") 

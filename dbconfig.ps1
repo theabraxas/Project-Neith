@@ -7,17 +7,14 @@ $computername = hostname
 
 #DatabaseCreation
 Try {
-    Invoke-Sqlcmd -ServerInstance localhost -Query "CREATE DATABASE ultimatedashboard" -ErrorAction SilentlyContinue
+    Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE DATABASE ultimatedashboard" -ErrorAction SilentlyContinue
     }
 Catch {
     Write-Host "Database $dbname already exists, continuing anyways"
     }
 
-#Set location to db location for shorter cmds
-Set-Location SQLSERVER:\SQL\$computername\DEFAULT\databases\$dbname 
-
 #Create AD summary table
-Invoke-Sqlcmd -Query "CREATE TABLE ad_summary (
+Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE ad_summary (
     date datetime PRIMARY KEY,
     success bit,
     total_users int,
@@ -29,7 +26,7 @@ Invoke-Sqlcmd -Query "CREATE TABLE ad_summary (
     );"
 
 #Create AD Computer Summary Table
-Invoke-Sqlcmd -Query "CREATE TABLE ad_computers (
+Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE ad_computers (
     comp_name text,
     operating_system text,
     last_logon_time bigint,
@@ -39,12 +36,12 @@ Invoke-Sqlcmd -Query "CREATE TABLE ad_computers (
     );"
 
 #Create OS Summary Table
-Invoke-Sqlcmd -Query "CREATE TABLE ad_os_summary (
+Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE ad_os_summary (
     date datetime
     )"
 
 #Create AD User Summary Table
-Invoke-Sqlcmd -Query "CREATE TABLE ad_users (
+Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE ad_users (
     user_SAM_name varchar(80),
     name varchar(80),
     user_created bigint,
@@ -76,7 +73,7 @@ Invoke-Sqlcmd -Query "CREATE TABLE ad_users (
     );"
 
 #Create AD Group Summary Table
-Invoke-Sqlcmd -Query "CREATE TABLE ad_groups (
+Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE ad_groups (
     objectsid varchar(250) PRIMARY KEY,
     samaccountname varchar(250),
     members text,
@@ -93,7 +90,7 @@ Invoke-Sqlcmd -Query "CREATE TABLE ad_groups (
     )"
 
 #VMWare Hosts
-Invoke-Sqlcmd -Query "CREATE TABLE vmware_hosts (
+Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE vmware_hosts (
     host_name varchar(80) PRIMARY KEY,
     power varchar(80),
     connected varchar(80),
@@ -114,7 +111,7 @@ Invoke-Sqlcmd -Query "CREATE TABLE vmware_hosts (
     );"
 
 #VMware VMs
-Invoke-Sqlcmd -Query "CREATE TABLE vmware_guests (
+Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE vmware_guests (
     host_name varchar(80) PRIMARY KEY,
     power varchar(80),
     notes varchar(200),
@@ -131,7 +128,7 @@ Invoke-Sqlcmd -Query "CREATE TABLE vmware_guests (
     );"
 
 #VMware Summary Table
-Invoke-Sqlcmd -Query "CREATE TABLE vmware_summary (
+Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE vmware_summary (
     date datetime PRIMARY KEY,
     num_hosts varchar(80),
     num_vms varchar(80),
@@ -144,7 +141,7 @@ Invoke-Sqlcmd -Query "CREATE TABLE vmware_summary (
     );"
 
 #Cylance Device Data
-Invoke-Sqlcmd -Query "CREATE TABLE cylance_device_data (
+Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE cylance_device_data (
     serial_number varchar(250) PRIMARY KEY,
     device_name varchar(250),
     os_version varchar(250),
@@ -163,7 +160,7 @@ Invoke-Sqlcmd -Query "CREATE TABLE cylance_device_data (
     )"
 
 #Cylance Threat Data Table
-Invoke-SqlCmd -Query "CREATE TABLE cylance_threat_data (
+Invoke-SqlCmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE cylance_threat_data (
     file_name varchar(250),
     file_status varchar(250),
     cylance_score int,
@@ -202,7 +199,7 @@ Invoke-SqlCmd -Query "CREATE TABLE cylance_threat_data (
     );"
     
 #Cylance Event Data Table
-Invoke-Sqlcmd -Query "CREATE TABLE cylance_event_data(
+Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE cylance_event_data(
     sha256 varchar(250),
     md5 varchar(250),
     device_name varchar(250),
@@ -218,7 +215,7 @@ Invoke-Sqlcmd -Query "CREATE TABLE cylance_event_data(
 );"
 
 #Cylance Cleared Data Table
-Invoke-Sqlcmd -Query "CREATE TABLE cylance_cleared_data(
+Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE cylance_cleared_data(
     sha256 varchar(250),
     md5 varchar(250),
     device_name varchar(250),
@@ -232,7 +229,7 @@ Invoke-Sqlcmd -Query "CREATE TABLE cylance_cleared_data(
 );"
 
 #Cylance Memory Protect Data Table
-Invoke-Sqlcmd -Query "CREATE TABLE cylance_memprotect_data(
+Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE cylance_memprotect_data(
     device_name varchar(160),
     serial_number varchar(160),
     process_name varchar(160),
@@ -245,7 +242,7 @@ Invoke-Sqlcmd -Query "CREATE TABLE cylance_memprotect_data(
 
 
 #Technology Template Table
-Invoke-Sqlcmd -Query "CREATE TABLE template_configs (
+Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE template_configs (
     template_name varchar(24) PRIMARY KEY,
     description text,
     active varchar(24),
@@ -264,7 +261,7 @@ $Integrations= @{AD=@('integration for active directory domain');Cylance=@('inte
 
 Foreach ($Integration in $Integrations.keys) {
     $Description = $Integrations[$Integration]
-    Invoke-SqlCmd -Query "INSERT INTO template_configs (template_name, description) VALUES('$Integration','$Description');"
+    Invoke-SqlCmd -ServerInstance $sqlinstance -Database $dbname -Query "INSERT INTO template_configs (template_name, description) VALUES('$Integration','$Description');"
     }
 
 #Invoke-Sqlcmd -Query "CREATE TABLE ad_users ()"

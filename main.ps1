@@ -10,12 +10,9 @@ $dbname = "ultimateDashboard"
 $computername = hostname
 Import-Module SqlServer
 
-#Set location to db location for shorter cmds
-Set-Location SQLSERVER:\SQL\$computername\DEFAULT\databases\$dbname 
-
 #DatabaseCreation
 Try {
-    Invoke-Sqlcmd -ServerInstance localhost -Query "CREATE DATABASE ultimatedashboard" -ErrorAction SilentlyContinue
+    Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE DATABASE ultimatedashboard" -ErrorAction SilentlyContinue
     }
 Catch {
     Write-Host "Database $dbname already exists, continuing anyways" #doesn't echo anywhere?
@@ -28,7 +25,7 @@ Get-ChildItem -Path $pagedir -Filter *.ps1 -Recurse -Exclude dbconfig*,*sql_impo
 }
 
 #Determine which modules are active
-$ActiveIntegrations = Invoke-Sqlcmd -Query "Select template_name,variablename from template_configs where active = 'yes'"
+$ActiveIntegrations = Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "Select template_name,variablename from template_configs where active = 'yes'"
 
 $pages = @()
 $pages += $HomePage

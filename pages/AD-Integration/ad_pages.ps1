@@ -1,12 +1,12 @@
-$ADUsers = Invoke-Sqlcmd -Query "select * from ad_users"
+$ADUsers = Invoke-Sqlcmd -Query "select * from ad_users" -ServerInstance $sqlinstance -Database $dbname
 $UserCount = $ADUsers.Count
 $EnabledUserCount = ($ADUsers | Where-Object -Property Enabled -eq -Value $True).Count
 $DisabledUserCount = $UserCount - $EnabledUserCount
 $LockedOutUsers = @($ADUsers | Where-Object -Property LockedOut -eq -Value $True)
 $LockedOutUserCount = $LockedOutUsers.Count
 $UsersWithEmail = ($ADUsers | Where-Object -Property Email_Address -NotLike "").Count
-$ADData = @(Invoke-Sqlcmd -Query "Select TOP 1 * from ad_summary ORDER BY date DESC")
-$Data = Invoke-Sqlcmd -Query "SELECT * FROM ad_summary"
+$ADData = @(Invoke-Sqlcmd -Query "Select TOP 1 * from ad_summary ORDER BY date DESC" -ServerInstance $sqlinstance -Database $dbname)
+$Data = Invoke-Sqlcmd -Query "SELECT * FROM ad_summary" -ServerInstance $sqlinstance -Database $dbname
 $Ticks_90days = 864000000000 * 90
 $ft_1day = ((Get-Date).AddDays(-1))
 
@@ -303,7 +303,7 @@ $PageSelector = New-UDElement -Tag div -Attributes @{
 }
 
 #Primary Page which the "AD Summary" page links to
-$ADDataPage = New-UDPage -Name "AD Summary" -Icon signal -Content {
+$ADDataPage = New-UDPage -Name "ADSummary" -Icon signal -Content {
     $PageSelector
     New-UDRow
     New-UDElement -tag div -id page -Content {

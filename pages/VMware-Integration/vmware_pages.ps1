@@ -1,6 +1,6 @@
-﻿$VMWareSummaryData= @(Invoke-Sqlcmd -Query "Select TOP 1 * from vmware_summary ORDER BY date DESC")
-$VMWareHostData = @(Invoke-Sqlcmd -Query "SELECT * FROM vmware_hosts")
-$VMWareVMData = @(Invoke-Sqlcmd -Query "SELECT * FROM vmware_guests")
+﻿$VMWareSummaryData= @(Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "Select TOP 1 * from vmware_summary ORDER BY date DESC")
+$VMWareHostData = @(Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "SELECT * FROM vmware_hosts")
+$VMWareVMData = @(Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "SELECT * FROM vmware_guests")
 $CPU_Percent = ($VMWareSummaryData.cpu_usage / $VMWareSummaryData.cpu_total) * 100
 $Mem_Percent = ($VMWareSummaryData.mem_usagegb / $VMWareSummaryData.mem_totalgb) * 100
 

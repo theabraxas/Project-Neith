@@ -1,6 +1,5 @@
 ﻿$computername = "localhost"
 $dbname = "ultimatedashboard"
-Set-Location SQLSERVER:\SQL\$computername\DEFAULT\databases\$dbname 
 
 function sanitizeCylanceData {
     [string]$URI, [string]$Target, [string]$ApiToken
@@ -10,7 +9,7 @@ function sanitizeCylanceData {
 }
 
 $URI = "https://protect.cylance.com/Reports/ThreatDataReportV1"
-$APIToken = (Invoke-SqlCmd -Query "SELECT apikey FROM template_configs WHERE template_name = 'Cylance'").apikey
+$APIToken = (Invoke-SqlCmd -ServerInstance $sqlinstance -Database $dbname -Query "SELECT apikey FROM template_configs WHERE template_name = 'Cylance'").apikey
 $APIEndpoints = ("threats","devices","events","indicators","cleared","policies","externaldevices","memoryprotection")
 
 Foreach ($Target in  $APIEndpoints) {
@@ -36,7 +35,7 @@ ForEach ($Device in $DevicesData) {
     $OL = $Device.'Is Online'
     $OLD = $Device.'Online Date'
     $OFLD = $Device.'Offline Date'
-    Invoke-SqlCmd -Query "INSERT INTO cylance_device_data (
+    Invoke-SqlCmd -ServerInstance $sqlinstance -Database $dbname -Query "INSERT INTO cylance_device_data (
         serial_number,device_name,os_version,agent_version,policy,zones,mac_addresses,ip_addresses,last_reported_user,background_detection,created,files_analyzed,is_online,online_date,offline_date)
         VALUES ('$SN','$DN','$OSV','$AgentV','$DP','$DZ','$MACs','$IPs','$LRU','$BGD','$Crt','$FA','$OL','$OLD','$OFLD')"
 }
@@ -78,7 +77,7 @@ Foreach ($Threat in $ThreatsData) {
     $ffound = $Threat.'first found'
     $lfound = $Threat.'last found'
     $dby = $Threat.'detected by'
-    Invoke-Sqlcmd -Query "INSERT INTO cylance_threat_data (file_name,file_status,cylance_score,signature_status,av_industry,global_quarantined,safelisted,signed,cert_timestamp,cert_issuer,cert_publisher,cert_subject,product_name,description,file_version,company_name,copyright,sha256,md5,classification,device_name,serial_number,file_size,file_path ,drive_type,file_owner,create_time,modification_time,access_time,running,auto_run,ever_run,first_found,last_found, detected_by)
+    Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "INSERT INTO cylance_threat_data (file_name,file_status,cylance_score,signature_status,av_industry,global_quarantined,safelisted,signed,cert_timestamp,cert_issuer,cert_publisher,cert_subject,product_name,description,file_version,company_name,copyright,sha256,md5,classification,device_name,serial_number,file_size,file_path ,drive_type,file_owner,create_time,modification_time,access_time,running,auto_run,ever_run,first_found,last_found, detected_by)
     VALUES ('$FN','$FS','$CyS','$sigs','$AVI','$GlQ','$Safe','$Signed','$cts','$cis','$cpub','$csub','$prodN','$desc','$fv','$comp_name','$copy','$sha','$md5','$class','$dn','$sn','$fis','$fip','$drt','$fio','$crt','$modt','$acct','$running','$arun','$erun','$ffound','$lfound','$dby');"
     }
 
@@ -96,7 +95,7 @@ Foreach ($Event in $EventsData) {
     $ever_run = $Event.'ever run'
     $detected_by = $Event.'detected by'
     $serial_number = $Event.'serial number'
-    Invoke-Sqlcmd -Query "INSERT INTO cylance_event_data (sha256,md5,device_name,date,file_path,event_status,cylance_score,classification,running,ever_run,detected_by,serial_number)
+    Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "INSERT INTO cylance_event_data (sha256,md5,device_name,date,file_path,event_status,cylance_score,classification,running,ever_run,detected_by,serial_number)
     VALUES ('$sha256','$md5','$device_name','$date','$file_path','$event_status','$cylance_score','$classification','$running','$ever_run','$detected_by','$serial_number');"
     }
 
@@ -112,7 +111,7 @@ Foreach ($ClearedEvent in $ClearedData) {
     $running = $ClearedEvent.running
     $ever_run = $ClearedEvent.'ever run'
     $detected_by = $ClearedEvent.'detected by'
-    Invoke-Sqlcmd -Query "INSERT INTO cylance_cleared_data (sha256,md5,device_name,date_removed,file_path,cylance_score,classification,running,ever_run,detected_by)
+    Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "INSERT INTO cylance_cleared_data (sha256,md5,device_name,date_removed,file_path,cylance_score,classification,running,ever_run,detected_by)
     VALUES ('$sha256','$md5','$device_name','$date_removed','$file_path','$cylance_score','$classification','$running','$ever_run','$detected_by');"
     }
 
@@ -126,6 +125,6 @@ Foreach ($MemEvent in $MemoryprotectionData) {
     $type = $MemEvent.'TYPE'
     $acton = $MemEvent.'ACTION'
     $user_name = $MemEvent.'USER NAME'
-    Invoke-Sqlcmd -Query "INSERT INTO cylance_memprotect_data(device_name,serial_number,process_name,added,process_id,type,action,user_name)
+    Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "INSERT INTO cylance_memprotect_data(device_name,serial_number,process_name,added,process_id,type,action,user_name)
     VALUES('$device_name','$serial_number','$process_name','$added','$process_id','$type','$action','$user_name')"
 }

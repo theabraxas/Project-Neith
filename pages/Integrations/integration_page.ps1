@@ -7,7 +7,7 @@
             $TemplateType = "AD"
             $Varname = "ADPage"
             New-UDInputAction -Content @(
-                Invoke-Sqlcmd -ServerInstance 'localhost' -Database 'ultimateDashboard' -Query "update template_configs set active = 'yes', variablename = '$Varname', username = '$Username', password = '$Password', domainname = '$Domainname' where template_name = '$TemplateType'"
+                Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "update template_configs set active = 'yes', variablename = '$Varname', username = '$Username', password = '$Password', domainname = '$Domainname' where template_name = '$TemplateType'"
                 New-UDCard -Title "New Pages Generated" -Text "$DomainName, $Username, $Password"
      )}
 
@@ -18,7 +18,7 @@ $CylanceCard =  New-UDInput -Title "Cylance Info" -Content {
             $TemplateType = "Cylance"
             $Varname = "CylancePages"
             New-UDInputAction -Content @(
-                Invoke-Sqlcmd -ServerInstance 'localhost' -Database 'ultimateDashboard' -Query "UPDATE template_configs SET active = 'yes', variablename = '$Varname', apikey = '$apikey'  WHERE template_name = '$TemplateType'"
+                Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "UPDATE template_configs SET active = 'yes', variablename = '$Varname', apikey = '$apikey'  WHERE template_name = '$TemplateType'"
                 New-UDCard -Title "Data Saved to Database" -Text "$apikey, CylanceCard"
      )}
 
@@ -36,7 +36,7 @@ $VMwareCard =  New-UDInput -Title "VMWare Info" -Content {
                 #$connection_data =  [xml] (Get-Content $location\temp.xml)
                 #$Password = $connection_data.viCredentials.passwordEntry.password
                 #Remove-Item $location\temp.xml
-                Invoke-Sqlcmd -ServerInstance 'localhost' -Database 'ultimateDashboard' -Query "update template_configs set active = 'yes', username = '$Username', variablename = '$Varname', password = '$Password', clustername = '$ClusterName' where template_name = '$TemplateType'"
+                Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "update template_configs set active = 'yes', username = '$Username', variablename = '$Varname', password = '$Password', clustername = '$ClusterName' where template_name = '$TemplateType'"
                 New-UDCard -Title "New Pages Generated" -Text "$UserName, $Password, $ClusterName"
      )}
 

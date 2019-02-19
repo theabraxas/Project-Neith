@@ -1,6 +1,4 @@
-﻿Set-Location SQLSERVER:\SQL\$computername\DEFAULT\databases\$dbname 
-
-$CylanceActive = Invoke-SqlCmd -Query "SELECT active FROM template_configs WHERE template_name = 'Cylance'"
+﻿$CylanceActive = Invoke-SqlCmd -Query "SELECT active FROM template_configs WHERE template_name = 'Cylance'" -ServerInstance $sqlinstance -Database $dbname
 $Threattypes = @()
 
 Foreach ($Threat in $DetectionData) {
@@ -10,11 +8,11 @@ $Threats_by_type = $Threattypes | Group-Object |Select Name,Count
 
 
 If ($CylanceActive.active -eq "yes") {
-    $Ddata = Invoke-Sqlcmd -Query "Select * from cylance_device_data"
-    $Tdata = Invoke-Sqlcmd -Query "Select * from cylance_threat_data"
-    $Edata = Invoke-Sqlcmd -Query "Select * from cylance_event_data"
-    $Cdata = Invoke-Sqlcmd -Query "Select * from cylance_cleared_data"
-    $MData = Invoke-Sqlcmd -Query "Select * from cylance_memprotect_data"
+    $Ddata = Invoke-Sqlcmd -Query "Select * from cylance_device_data" -ServerInstance $sqlinstance -Database $dbname
+    $Tdata = Invoke-Sqlcmd -Query "Select * from cylance_threat_data" -ServerInstance $sqlinstance -Database $dbname
+    $Edata = Invoke-Sqlcmd -Query "Select * from cylance_event_data" -ServerInstance $sqlinstance -Database $dbname
+    $Cdata = Invoke-Sqlcmd -Query "Select * from cylance_cleared_data" -ServerInstance $sqlinstance -Database $dbname
+    $MData = Invoke-Sqlcmd -Query "Select * from cylance_memprotect_data" -ServerInstance $sqlinstance -Database $dbname
 
     #Chart Data
     $Top10ComputersWithBlockedThreats = $ClearedData | Group-Object -property "Device Name" | Sort-Object -Property "Count" -Descending | Select-Object Count, Name -First 10 

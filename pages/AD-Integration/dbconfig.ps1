@@ -1,10 +1,9 @@
 #Create AD tables in Database
 $computername = 'localhost'
 $dbname = 'ultimatedashboard'
-Set-Location SQLSERVER:\SQL\$computername\DEFAULT\databases\$dbname 
 
 #Create AD summary table
-Invoke-Sqlcmd -Query "CREATE TABLE ad_summary (
+Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE ad_summary (
     date datetime PRIMARY KEY,
     success bit,
     total_users int,
@@ -16,7 +15,7 @@ Invoke-Sqlcmd -Query "CREATE TABLE ad_summary (
     );"
 
 #Create AD Computer Summary Table
-Invoke-Sqlcmd -Query "CREATE TABLE ad_computers (
+Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE ad_computers (
     comp_name text,
     operating_system text,
     last_logon_time bigint,
@@ -26,12 +25,12 @@ Invoke-Sqlcmd -Query "CREATE TABLE ad_computers (
     );"
 
 #Create OS Summary Table
-Invoke-Sqlcmd -Query "CREATE TABLE ad_os_summary (
+Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE ad_os_summary (
     date datetime
     )"
 
 #Create AD User Summary Table
-Invoke-Sqlcmd -Query "CREATE TABLE ad_users (
+Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE ad_users (
     user_SAM_name varchar(80),
     name varchar(80),
     user_created bigint,
@@ -63,7 +62,7 @@ Invoke-Sqlcmd -Query "CREATE TABLE ad_users (
     );"
 
 #Create AD Group Summary Table
-Invoke-Sqlcmd -Query "CREATE TABLE ad_groups (
+Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE ad_groups (
     objectsid varchar(250) PRIMARY KEY,
     samaccountname varchar(250),
     members text,
