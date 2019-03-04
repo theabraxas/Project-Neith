@@ -1,4 +1,4 @@
-﻿$CylanceActive = Invoke-SqlCmd -Query "SELECT active FROM template_configs WHERE template_name = 'Cylance'" -ServerInstance $sqlinstance -Database $dbname
+﻿$CylanceActive = Invoke-SqlCmd -Query "SELECT active FROM template_configs WHERE template_name = 'Cylance'" -ServerInstance $cache:sql_instance -Database $cache:db_name
 $Threattypes = @()
 
 Foreach ($Threat in $DetectionData) {
@@ -8,11 +8,11 @@ $Threats_by_type = $Threattypes | Group-Object |Select Name,Count
 
 
 If ($CylanceActive.active -eq "yes") {
-    $Ddata = Invoke-Sqlcmd -Query "Select * from cylance_device_data" -ServerInstance $sqlinstance -Database $dbname
-    $Tdata = Invoke-Sqlcmd -Query "Select * from cylance_threat_data" -ServerInstance $sqlinstance -Database $dbname
-    $Edata = Invoke-Sqlcmd -Query "Select * from cylance_event_data" -ServerInstance $sqlinstance -Database $dbname
-    $Cdata = Invoke-Sqlcmd -Query "Select * from cylance_cleared_data" -ServerInstance $sqlinstance -Database $dbname
-    $MData = Invoke-Sqlcmd -Query "Select * from cylance_memprotect_data" -ServerInstance $sqlinstance -Database $dbname
+    $Ddata = Invoke-Sqlcmd -Query "Select * from cylance_device_data" -ServerInstance $cache:sql_instance -Database $cache:db_name
+    $Tdata = Invoke-Sqlcmd -Query "Select * from cylance_threat_data" -ServerInstance $cache:sql_instance -Database $cache:db_name
+    $Edata = Invoke-Sqlcmd -Query "Select * from cylance_event_data" -ServerInstance $cache:sql_instance -Database $cache:db_name
+    $Cdata = Invoke-Sqlcmd -Query "Select * from cylance_cleared_data" -ServerInstance $cache:sql_instance -Database $cache:db_name
+    $MData = Invoke-Sqlcmd -Query "Select * from cylance_memprotect_data" -ServerInstance $cache:sql_instance -Database $cache:db_name
 
     #Chart Data
     $Top10ComputersWithBlockedThreats = $ClearedData | Group-Object -property "Device Name" | Sort-Object -Property "Count" -Descending | Select-Object Count, Name -First 10 
@@ -50,13 +50,13 @@ If ($CylanceActive.active -eq "yes") {
 $CylanceComputerPage = New-UDPage -Url "/dynamic/cylance/computer/:CompName" -Endpoint {
     param($CompName)
     $query = "SELECT * FROM cylance_device_data WHERE device_name = '$CompName'"
-    $AgentData = Invoke-Sqlcmd -Query $Query -ServerInstance $SQLInstance -Database $dbname
+    $AgentData = Invoke-Sqlcmd -Query $Query -ServerInstance $cache:sql_instance -Database $cache:db_name
     $query = "SELECT * FROM cylance_event_data WHERE device_name = '$CompName'"
-    $EventsData = Invoke-Sqlcmd -Query $Query -ServerInstance $SQLInstance -Database $dbname
+    $EventsData = Invoke-Sqlcmd -Query $Query -ServerInstance $cache:sql_instance -Database $cache:db_name
     $query = "SELECT * FROM cylance_cleared_data WHERE device_name = '$CompName'"
-    $ClearedData = Invoke-Sqlcmd -Query $Query -ServerInstance $SQLInstance -Database $dbname
+    $ClearedData = Invoke-Sqlcmd -Query $Query -ServerInstance $cache:sql_instance -Database $cache:db_name
     $query = "SELECT * FROM cylance_threat_data WHERE device_name = '$CompName'"
-    $ThreatData = Invoke-Sqlcmd -Query $Query -ServerInstance $SQLInstance -Database $dbname
+    $ThreatData = Invoke-Sqlcmd -Query $Query -ServerInstance $cache:sql_instance -Database $cache:db_name
     New-UDRow -Columns {
         New-UDColumn -Size 4 {
             New-UdTable -Title "$CompName Agent Information" -Headers @(" ", " ") -Endpoint {
@@ -146,7 +146,7 @@ $CylanceComputerPage = New-UDPage -Url "/dynamic/cylance/computer/:CompName" -En
 
 #Add default policy counter and no-zone counters to table.
 $CylancePage = New-UDPage -Name "Cylance" -Icon unlock -Endpoint {
-    $CylanceComputers = (Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $dbname -Query "SELECT device_name FROM cylance_device_data ORDER BY device_name")
+    $CylanceComputers = (Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "SELECT device_name FROM cylance_device_data ORDER BY device_name")
     New-UDLayout -Columns 3 -Content {
         New-UDInput -Title "Enter Computer Name: " -Content {
             New-UDInputField -Type select -Values @($CylanceComputers.device_name) -Name "CompName" -DefaultValue $CylanceComputers.device_name[0]

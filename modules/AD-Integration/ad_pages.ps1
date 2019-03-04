@@ -1,12 +1,12 @@
-$ADUsers = Invoke-Sqlcmd -Query "select * from ad_users" -ServerInstance $sqlinstance -Database $dbname
+$ADUsers = Invoke-Sqlcmd -Query "select * from ad_users" -ServerInstance $cache:sql_instance -Database $cache:db_name
 $UserCount = $ADUsers.Count
 $EnabledUserCount = ($ADUsers | Where-Object -Property Enabled -eq -Value $True).Count
 $DisabledUserCount = $UserCount - $EnabledUserCount
 $LockedOutUsers = @($ADUsers | Where-Object -Property LockedOut -eq -Value $True)
 $LockedOutUserCount = $LockedOutUsers.Count
 $UsersWithEmail = ($ADUsers | Where-Object -Property Email_Address -NotLike "").Count
-$ADData = @(Invoke-Sqlcmd -Query "Select TOP 1 * from ad_summary ORDER BY date DESC" -ServerInstance $sqlinstance -Database $dbname)
-$Data = Invoke-Sqlcmd -Query "SELECT * FROM ad_summary" -ServerInstance $sqlinstance -Database $dbname
+$ADData = @(Invoke-Sqlcmd -Query "SELECT TOP 1 * FROM ad_summary ORDER BY date DESC" -ServerInstance $cache:sql_instance -Database $cache:db_name)
+$Data = Invoke-Sqlcmd -Query "SELECT * FROM ad_summary" -ServerInstance $cache:sql_instance -Database $cache:db_name
 $Ticks_90days = 864000000000 * 90
 $ft_1day = ((Get-Date).AddDays(-1))
 
@@ -14,6 +14,7 @@ $Features = @();
 Foreach ($D in $Data) {
     $Features += [PSCustomObject]@{ "Date" = $D.date; "Users" = $D.total_users ; "EnabledUsers" = $D.total_users_enabled ; "Computers" = $D.total_computers ; "EnabledComputers" = $D.total_enabled_computers }
     }
+
 
 $UserInfoPage = New-UDPage -Url "/user/:UserName" -Endpoint {
     #Dynamic page which provides an overview of the users attributes.

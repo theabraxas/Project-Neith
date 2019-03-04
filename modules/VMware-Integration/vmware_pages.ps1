@@ -1,6 +1,6 @@
-﻿$VMWareSummaryData= @(Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "Select TOP 1 * from vmware_summary ORDER BY date DESC")
-$VMWareHostData = @(Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "SELECT * FROM vmware_hosts")
-$VMWareVMData = @(Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "SELECT * FROM vmware_guests")
+﻿$VMWareSummaryData= @(Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "Select TOP 1 * from vmware_summary ORDER BY date DESC")
+$VMWareHostData = @(Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "SELECT * FROM vmware_hosts")
+$VMWareVMData = @(Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "SELECT * FROM vmware_guests")
 $CPU_Percent = ($VMWareSummaryData.cpu_usage / $VMWareSummaryData.cpu_total) * 100
 $Mem_Percent = ($VMWareSummaryData.mem_usagegb / $VMWareSummaryData.mem_totalgb) * 100
 
@@ -8,7 +8,7 @@ $VMWareSummaryPage = New-UDPage -Name "VMWare" -Icon desktop -Endpoint {
     #Overview of VMware data
     New-UDLayout -Columns 3 -Content {
         New-UdTable -Title "VMware Information" -Headers @("name", "value") -Endpoint {
-            $NoHyperThread = Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $dbname -Query "SELECT hyper_threading FROM vmware_hosts WHERE hyper_threading = 'False'"
+            $NoHyperThread = Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "SELECT hyper_threading FROM vmware_hosts WHERE hyper_threading = 'False'"
         ([ordered]@{
             'Number of Hosts' = $VMWareSummaryData.num_hosts
             'Number of VMs' = $VMWareSummaryData.num_vms
@@ -23,14 +23,14 @@ $VMWareSummaryPage = New-UDPage -Name "VMWare" -Icon desktop -Endpoint {
             }).GetEnumerator() | Out-UDTableData -Property @("name","value")
         }
         New-UDInput -Title "Enter VM Name: " -Content {
-            $VMs = @(Invoke-Sqlcmd  -ServerInstance $SQLInstance -Database $dbname -Query "SELECT host_name FROM vmware_guests")
+            $VMs = @(Invoke-Sqlcmd  -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "SELECT host_name FROM vmware_guests")
             New-UDInputField -type select -Values @($VMs.host_name) -Name "VMName" -DefaultValue $vms[0].host_name
         } -Endpoint {
             param($VMName)
             New-UDInputAction -RedirectUrl "/vm/$VMName"
         }
         New-UDInput -Title "Enter Host Name: "  -Content {
-            $VMhosts = @(Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $dbname -Query "SELECT host_name FROM vmware_hosts")
+            $VMhosts = @(Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "SELECT host_name FROM vmware_hosts")
             New-UDInputField -Type select -Values @($VMhosts.host_name) -Name "VMHost" -DefaultValue $VMHosts[0].host_name
             } -Endpoint {
             param($VMhost)
@@ -62,12 +62,12 @@ $VMWareSummaryPage = New-UDPage -Name "VMWare" -Icon desktop -Endpoint {
 $VMpage = New-UDPage -Url "/vm/:VMName" -Endpoint {
     #Dynamic page which provides an overview of the VM.
     param($VMname)
-    $VMs = Invoke-SqlCmd -ServerInstance $SQLInstance -Database $DBname -Query "SELECT host_name FROM vmware_guests" 
+    $VMs = Invoke-SqlCmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "SELECT host_name FROM vmware_guests" 
     New-UDRow -Columns {
         New-UDColumn -Size 4 {
                 New-UDCard -Title "$VMname Information (Not Live, from DB)" -Endpoint {
                     $Query = "SELECT * FROM vmware_guests WHERE host_name = '$VMname'"
-                    $VMdata = Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $DBname -Query $Query
+                    $VMdata = Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query $Query
                     New-UDTable -Headers @(" "," ") -Endpoint {
                         ([ordered]@{
                         power = $VMdata.power.ToString()
@@ -88,12 +88,12 @@ $VMpage = New-UDPage -Url "/vm/:VMName" -Endpoint {
 $VMHostpage = New-UDPage -Url "/vmhost/:VMhost" -Endpoint {
     #Dynamic page which provides an overview of the host.
     param($VMhost)
-    $Hosts = Invoke-SqlCmd -ServerInstance $SQLInstance -Database $DBname -Query "SELECT host_name FROM vmware_hosts" 
+    $Hosts = Invoke-SqlCmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "SELECT host_name FROM vmware_hosts" 
     New-UDRow -Columns {
         New-UDColumn -Size 4 {
                 New-UDCard -Title "$VMhost Information (Not Live, from DB)" -Endpoint {
                     $Query = "SELECT * FROM vmware_hosts WHERE host_name LIKE '%$VMhost%'"
-                    $Hostdata = Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $DBname -Query $Query
+                    $Hostdata = Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query $Query
                     New-UDTable -Headers @(" "," ") -Endpoint {
                         ([ordered]@{
                         power = $Hostdata.power.ToString()

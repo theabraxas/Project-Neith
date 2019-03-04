@@ -1,5 +1,5 @@
 #VMWare Hosts
-Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE vmware_hosts (
+Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "CREATE TABLE vmware_hosts (
     host_name varchar(80) PRIMARY KEY,
     power varchar(80),
     connected varchar(80),
@@ -20,7 +20,7 @@ Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABL
     );"
 
 #VMware VMs
-Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE vmware_guests (
+Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "CREATE TABLE vmware_guests (
     host_name varchar(80) PRIMARY KEY,
     power varchar(80),
     notes varchar(200),
@@ -37,7 +37,7 @@ Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABL
     );"
 
 #VMware Summary Table
-Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE vmware_summary (
+Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "CREATE TABLE vmware_summary (
     date datetime PRIMARY KEY,
     num_hosts varchar(80),
     num_vms varchar(80),

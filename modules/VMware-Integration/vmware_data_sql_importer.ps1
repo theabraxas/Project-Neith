@@ -5,7 +5,7 @@
 #$vconn = connect-viserver $vcenter -Credential $cred
 
 Import-Module VMware.VimAutomation.Core
-$data = Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname  -Query "SELECT * FROM template_configs WHERE template_name='VMware'"
+$data = Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name  -Query "SELECT * FROM template_configs WHERE template_name='VMware'"
 
 $vCenter = $data.clustername
 $User = $data.username
@@ -58,7 +58,7 @@ ForEach ($VMHost in $HostInfo) {
     $VMParent = $VMHost.parent
     $Net_info = $VMHost.NetworkInfo
     $DatastoreCount = ($VMHost |Select -ExpandProperty DatastoreIdList).count
-    Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "INSERT INTO vmware_hosts (host_name, power, connected, manufacturer, model, num_cpu, cpu_total, cpu_usage, mem_totalgb, mem_usagegb, proc_type, hyper_threading, version, build, parent, net_info, datastore_count) 
+    Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "INSERT INTO vmware_hosts (host_name, power, connected, manufacturer, model, num_cpu, cpu_total, cpu_usage, mem_totalgb, mem_usagegb, proc_type, hyper_threading, version, build, parent, net_info, datastore_count) 
 VALUES('$host_name','$host_power','$connected','$manufacturer','$model','$num_cpu', '$CPU_available', '$CPU_Used','$MemTotalGB', '$MemUsageGB', '$ProcType','$HyperThreading','$VMversion','$VMBuild','$VMParent','$Net_info','$DatastoreCount')"
     }
 
@@ -77,10 +77,10 @@ ForEach ($VMGuest in $VMInfo) {
     $VMProvisionedSpace = $VMGuest.ProvisionedSpaceGB
     $VMUsedSpace = $VMGuest.UsedSpaceGB
     $VMToolsVersion =  Get-VM rbhelpdesk | Get-VMguest | select -ExpandProperty ToolsVersion
-    Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "INSERT INTO vmware_guests (host_name,power,notes,guest,num_cpu,mem_totalgb,vm_host,folder,version,datastore_count,provisioned_space,used_space,tools_version) 
+    Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "INSERT INTO vmware_guests (host_name,power,notes,guest,num_cpu,mem_totalgb,vm_host,folder,version,datastore_count,provisioned_space,used_space,tools_version) 
 VALUES('$vm_name','$vm_power','$vm_notes','$guest','$num_cpu','$MemTotalGB','$VMHost','$VMFolder','$VMversion','$DatastoreCount','$VMProvisionedSpace','$VMUsedSpace','$VMToolsVersion')"
     }
 
 #Load VMWare Summary Table
-Invoke-SqlCmd -ServerInstance $sqlinstance -Database $dbname -Query "INSERT INTO vmware_summary (date, num_hosts, num_vms, num_cpu, cpu_total, cpu_usage, mem_usagegb, mem_totalgb, datastore_count)
+Invoke-SqlCmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "INSERT INTO vmware_summary (date, num_hosts, num_vms, num_cpu, cpu_total, cpu_usage, mem_usagegb, mem_totalgb, datastore_count)
 VALUES('$datetime','$numHosts','$VMCount','$clusterCPUCount', '$ClusterCPUTotalMhz', '$ClusterCPUUsageMhz','$ClusterMemoryUsage','$clusterMemTotal','$ClusterDatastoreCount');"

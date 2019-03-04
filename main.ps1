@@ -1,21 +1,22 @@
 ﻿#Primary Dashboard
 ##Make sure to run this file directly from it's location so get-location works properly
+Import-Module UniversalDashboard.Community
 
 $location = Get-Location
-$pagedir = $location.Path + "\pages"
+$pagedir = $location.Path + "\modules"
 
 #SQL Template Requirements
-$SQLInstance = "localhost"
-$dbname = "ultimateDashboard"
-$computername = hostname
+$cache:sql_instance = "localhost"
+$cache:db_name= "ultimateDashboard"
+
 Import-Module SqlServer
 
 #DatabaseCreation
 Try {
-    Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE DATABASE ultimatedashboard" -ErrorAction SilentlyContinue
+    Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name-Query "CREATE DATABASE ultimatedashboard" -ErrorAction SilentlyContinue
     }
 Catch {
-    Write-Host "Database $dbname already exists, continuing anyways" #doesn't echo anywhere?
+    Write-Host "Database already exists, continuing anyways" #doesn't echo anywhere?
     }
 
 #Make the exclusions cleaner
@@ -25,7 +26,7 @@ Get-ChildItem -Path $pagedir -Filter *.ps1 -Recurse -Exclude dbconfig*,*sql_impo
 }
 
 #Determine which modules are active
-$ActiveIntegrations = Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "Select template_name,variablename from template_configs where active = 'yes'"
+$ActiveIntegrations = Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "Select template_name,variablename from template_configs where active = 'yes'"
 
 $pages = @()
 $pages += $HomePage

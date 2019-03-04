@@ -1,9 +1,9 @@
 #Create AD tables in Database
-$computername = 'localhost'
-$dbname = 'ultimatedashboard'
+#$sqlinstance = 'localhost'
+#$dbname = 'ultimatedashboard'
 
 #Create AD summary table
-Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE ad_summary (
+Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "CREATE TABLE ad_summary (
     date datetime PRIMARY KEY,
     success bit,
     total_users int,
@@ -15,7 +15,7 @@ Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABL
     );"
 
 #Create AD Computer Summary Table
-Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE ad_computers (
+Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "CREATE TABLE ad_computers (
     comp_name text,
     operating_system text,
     last_logon_time bigint,
@@ -25,12 +25,12 @@ Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABL
     );"
 
 #Create OS Summary Table
-Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE ad_os_summary (
+Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "CREATE TABLE ad_os_summary (
     date datetime
     )"
 
 #Create AD User Summary Table
-Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE ad_users (
+Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "CREATE TABLE ad_users (
     user_SAM_name varchar(80),
     name varchar(80),
     user_created bigint,
@@ -62,7 +62,7 @@ Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABL
     );"
 
 #Create AD Group Summary Table
-Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE ad_groups (
+Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "CREATE TABLE ad_groups (
     objectsid varchar(250) PRIMARY KEY,
     samaccountname varchar(250),
     members text,

@@ -1,5 +1,5 @@
 #Cylance Device Data
-Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE cylance_device_data (
+Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "CREATE TABLE cylance_device_data (
     serial_number varchar(250) PRIMARY KEY,
     device_name varchar(250),
     os_version varchar(250),
@@ -18,7 +18,7 @@ Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABL
     )"
 
 #Cylance Threat Data Table
-Invoke-SqlCmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE cylance_threat_data (
+Invoke-SqlCmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "CREATE TABLE cylance_threat_data (
     file_name varchar(250),
     file_status varchar(250),
     cylance_score int,
@@ -57,7 +57,7 @@ Invoke-SqlCmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABL
     );"
     
 #Cylance Event Data Table
-Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE cylance_event_data(
+Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "CREATE TABLE cylance_event_data(
     sha256 varchar(250),
     md5 varchar(250),
     device_name varchar(250),
@@ -73,7 +73,7 @@ Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABL
 );"
 
 #Cylance Cleared Data Table
-Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE cylance_cleared_data(
+Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "CREATE TABLE cylance_cleared_data(
     sha256 varchar(250),
     md5 varchar(250),
     device_name varchar(250),
@@ -87,7 +87,7 @@ Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABL
 );"
 
 #Cylance Memory Protect Data Table
-Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "CREATE TABLE cylance_memprotect_data(
+Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "CREATE TABLE cylance_memprotect_data(
     device_name varchar(160),
     serial_number varchar(160),
     process_name varchar(160),

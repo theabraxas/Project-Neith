@@ -1,13 +1,13 @@
-﻿#Some weird SQL to get all the tables and count of values.
-$RecordsPerTable = @(Invoke-Sqlcmd -ServerInstance $sqlinstance -Database $dbname -Query "select t.name TableName, i.rows Records
-            from sysobjects t, sysindexes i
-            where t.xtype = 'U' and i.id = t.id and i.indid in (0,1)
-            order by TableName;") 
-
-$HomePage = New-UDPage -Name "Home" -Icon home -Content {        
+﻿$HomePage = New-UDPage -Name "Home" -Icon home -Content {        
     New-UDLayout -Columns 3 -Content {
 	    #DB Stats  
+        
         New-UDTable -Title "Table Statistics" -Headers @("TableName", "Records") -Endpoint {
+            #Some weird SQL to get all the tables and count of values.
+            $RecordsPerTable = Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "select t.name TableName, i.rows Records
+                from sysobjects t, sysindexes i
+                where t.xtype = 'U' and i.id = t.id and i.indid in (0,1)
+                order by TableName;"
             $RecordsPerTable.GetEnumerator() | Out-UDTableData -Property @("TableName", "Records")
         }
         #Monitor of CPU status where UniversalDashboard is running.
