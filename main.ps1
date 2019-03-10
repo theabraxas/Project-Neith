@@ -16,7 +16,7 @@ Try {
     Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name-Query "CREATE DATABASE ultimatedashboard" -ErrorAction SilentlyContinue
     }
 Catch {
-    Write-Host "Database already exists, continuing anyways" #doesn't echo anywhere?
+    Write-Host "Database already exists, continuing anyways"
     }
 
 #Make the exclusions cleaner

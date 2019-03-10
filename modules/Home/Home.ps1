@@ -2,7 +2,7 @@
     New-UDLayout -Columns 3 -Content {
 	    #DB Stats  
         
-        New-UDTable -Title "Table Statistics" -Headers @("TableName", "Records") -Endpoint {
+        New-UDTable -Title "Table Statistics" -Headers @("TableName", "Records") -Content {
             #Some weird SQL to get all the tables and count of values.
             $RecordsPerTable = Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "select t.name TableName, i.rows Records
                 from sysobjects t, sysindexes i
@@ -28,6 +28,16 @@
                 New-UdChartDataset -DataProperty "TotalMemory" -Label "TotalMemory" -BackgroundColor "#80962F23" -HoverBackgroundColor "#80962F23"
                 New-UdChartDataset -DataProperty "UsedMemory" -Label "UsedMemory" -BackgroundColor "#8014558C" -HoverBackgroundColor "#8014558C"
             )
+        } -Options @{
+            scales = @{
+                yAxes = @(
+                    @{
+                        ticks = @{
+                            beginAtZero = $true
+                        }
+                    }
+                )
+            }
         }
     }
 }

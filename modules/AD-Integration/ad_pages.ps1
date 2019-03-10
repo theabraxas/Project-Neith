@@ -15,7 +15,6 @@ Foreach ($D in $Data) {
     $Features += [PSCustomObject]@{ "Date" = $D.date; "Users" = $D.total_users ; "EnabledUsers" = $D.total_users_enabled ; "Computers" = $D.total_computers ; "EnabledComputers" = $D.total_enabled_computers }
     }
 
-
 $UserInfoPage = New-UDPage -Url "/user/:UserName" -Endpoint {
     #Dynamic page which provides an overview of the users attributes.
     param($UserName)
@@ -71,6 +70,21 @@ $ComputerPage = New-UDPage -Url "/computer/main/:ComputerName" -Endpoint {
             'Last Patch Date' = ($lastpatch)
             'lastboot' = ($lastboot)
             'LAPS PW' = ($pw) 
+            }.GetEnumerator() | Out-UDTableData -Property @("Name", "Value")
+        } 
+
+        New-UdTable -Title "Security Configuration" -Headers @(" ", " ") -Endpoint {
+        @{
+            'Computer Name' = ($ComputerName)
+            'Operating System' = "derp"
+            'Total Disk Space (C:)' = "derp"
+            'Free Disk Space (C:)' = "derp"
+            'Last Boot Time' = "derp"
+            'View Live Data' = New-UDButton -Text "More Info" -OnClick {
+                Invoke-UDRedirect -Url "/computer/live/$ComputerName"}
+            'Last Patch Date' = "derp"
+            'lastboot' = "derp"
+            'LAPS PW' = "derp"
             }.GetEnumerator() | Out-UDTableData -Property @("Name", "Value")
         } 
 
@@ -199,6 +213,16 @@ $ADSummary = New-UDLayout -Columns 1 -Content {
                 New-UDChartDataset -DataProperty "Computers" -Label "Computers" -BackgroundColor "#8014558C" -HoverBackgroundColor "#8014558C"
                 New-UDChartDataset -DataProperty "EnabledComputers" -Label "EnabledComputers" -BackgroundColor "#803AE8CE" -HoverBackgroundColor "#803AE8CE"
             )
+        } -Options @{
+            scales = @{
+                yAxes = @(
+                    @{
+                        ticks = @{
+                            beginAtZero = $true
+                        }
+                    }
+                )
+            }
         }
     }
 }
@@ -289,18 +313,28 @@ $UserOverview = New-UDRow -Columns {
         }
 }
 
+$ComputersOverview = New-UDRow -Columns {
+    #All AD Computers Overview Section
+    New-UDColumn -Size 4 {
+        New-UDCard -Title "Computers Overview" -Text "There will be some cool computer info here"
+    }
+}
+
 #Nav Menu for AD pages
 $PageSelector = New-UDElement -Tag div -Attributes @{
-    style = @{display = 'flex'; flexdirection = 'row';}
-    } -Content {
-    New-UDButton -Text "AD Summary" -OnClick {
+    style = @{
+        display = 'flex'; flexdirection = 'row';}
+    } -Content { 
+        New-UDButton -Text "AD Overview" -OnClick {
         Set-UDElement -Id page -Content { $ADSummary }
     }
     New-UDButton -Text "User Overview" -OnClick {
         Set-UDElement -Id page -Content { $UserOverview }
     }
-    New-UDButton -Text "AD Health (Coming Soon!)"
-    New-UDButton -Text "AD Management (Coming Soon!)"
+    New-UDButton -Text "Computer Overview (Coming Soon!)" -OnClick {
+        Set-UDElement -Id page -Content { $ComputersOverview }
+    }
+    New-UDButton -Text "??????? (Coming Soon!)"
 }
 
 #Primary Page which the "AD Summary" page links to
