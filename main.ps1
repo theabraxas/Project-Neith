@@ -23,6 +23,8 @@ Catch {
 ##Ignores the DB creators and tasks to import new data.
 Get-ChildItem -Path $pagedir -Filter *.ps1 -Recurse -Exclude dbconfig*,*sql_importer* | ForEach-Object {
     . $_.FullName
+    write-host $_.fullname
+    sleep -Seconds 2
 }
 
 #Determine which modules are active
