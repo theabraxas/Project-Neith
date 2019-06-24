@@ -13,7 +13,7 @@ Import-Module SqlServer
 
 #DatabaseCreation
 Try {
-    Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name-Query "CREATE DATABASE ultimatedashboard" -ErrorAction SilentlyContinue
+    Invoke-Sqlcmd -ServerInstance $cache:sql_instance -Database $cache:db_name -Query "CREATE DATABASE ultimatedashboard" -ErrorAction SilentlyContinue
     }
 Catch {
     Write-Host "Database already exists, continuing anyways"
